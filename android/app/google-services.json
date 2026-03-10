@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "2644031481",
+    "project_id": "localyse-app",
+    "storage_bucket": "localyse-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:2644031481:android:2ed450083215d695be2f28",
+        "android_client_info": {
+          "package_name": "in.localyse.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "2644031481-ui3jilafo05rlolhols5tkb7c7oi3gu7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZrh6lB3w25y1vpTA_TJ3u7c98BfGTcZ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "2644031481-ui3jilafo05rlolhols5tkb7c7oi3gu7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
