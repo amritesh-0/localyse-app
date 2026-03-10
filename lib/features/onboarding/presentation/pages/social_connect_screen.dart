@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/auth/app_user_role.dart';
 import '../../../../core/navigation/auth_flow_router.dart';
-import '../../../../core/social/social_auth_config.dart';
 import '../../../../core/social/social_connection_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/feedback_utils.dart';
@@ -448,28 +447,38 @@ class _SocialConnectScreenState extends State<SocialConnectScreen>
                         ),
                       ),
                     ),
+                    Positioned(
+                      top: -50,
+                      right: -50,
+                      child: Container(
+                        height: 200,
+                        width: 200,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withAlpha(25),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
                     SafeArea(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.arrow_back, color: Colors.white),
-                                  onPressed: () => Navigator.pop(context),
-                                ),
-                              ],
+                            IconButton(
+                              icon: const Icon(Icons.arrow_back, color: Colors.white),
+                              onPressed: () => Navigator.pop(context),
                             ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Connect Social Media',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white,
-                                letterSpacing: -0.5,
+                            const Padding(
+                              padding: EdgeInsets.only(left: 12, top: 8),
+                              child: Text(
+                                'Boost Your Profile',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: -0.5,
+                                ),
                               ),
                             ),
                           ],
@@ -492,14 +501,33 @@ class _SocialConnectScreenState extends State<SocialConnectScreen>
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Text(
-                        'Callback configured as ${SocialAuthConfig.callbackScheme}://${SocialAuthConfig.callbackHost}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textHint,
-                        ),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryLight,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.verified_user_outlined, size: 14, color: AppColors.primary),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'META & GOOGLE VERIFIED API',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.primary,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 32),
                       _socialConnectCard(
                         title: 'Connect Instagram',
                         subtitle: _instagramSubtitle ??
@@ -523,7 +551,9 @@ class _SocialConnectScreenState extends State<SocialConnectScreen>
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _isSaving ? null : _handleFinish,
+                          onPressed: (_isSaving || !_isAnyConnected)
+                              ? null
+                              : _handleFinish,
                           child: _isSaving
                               ? const SizedBox(
                                   height: 20,
@@ -537,13 +567,17 @@ class _SocialConnectScreenState extends State<SocialConnectScreen>
                         ),
                       ),
                       const SizedBox(height: 16),
-                      TextButton(
-                        onPressed: _isSaving ? null : _handleFinish,
-                        child: const Text(
-                          'Continue collab and connect later',
-                          style: TextStyle(
-                            color: AppColors.textSecondary,
-                            fontWeight: FontWeight.w500,
+                      Center(
+                        child: TextButton(
+                          onPressed: (_isSaving || !_isAnyConnected)
+                              ? null
+                              : _handleFinish,
+                          child: const Text(
+                            'Continue collab and connect later',
+                            style: TextStyle(
+                              color: AppColors.textSecondary,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ),
@@ -589,8 +623,8 @@ class _SocialConnectScreenState extends State<SocialConnectScreen>
                 ? AppColors.primary.withAlpha(50)
                 : isFailed
                     ? AppColors.error.withAlpha(90)
-                    : Colors.grey.shade100,
-            width: isConnected || isFailed ? 2 : 1,
+                    : Colors.transparent, // Clean design: no border by default
+            width: isConnected || isFailed ? 2 : 0,
           ),
           boxShadow: [
             BoxShadow(

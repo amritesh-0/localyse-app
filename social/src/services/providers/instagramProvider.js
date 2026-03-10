@@ -35,7 +35,11 @@ async function exchangeCodeForTokens({ code }) {
 
     return response.data;
   } catch (error) {
-    throw new HttpError(502, "Failed to exchange Instagram authorization code.", error.response?.data || error.message);
+    throw new HttpError(
+      502,
+      "Failed to exchange Instagram authorization code. Verify that the Meta app is configured for Instagram API with Instagram Login and that the callback URI exactly matches the app settings.",
+      error.response?.data || error.message,
+    );
   }
 }
 
@@ -43,7 +47,8 @@ async function fetchProfile({ accessToken, providerAccountId }) {
   try {
     const response = await axios.get("https://graph.instagram.com/me", {
       params: {
-        fields: "id,username,account_type",
+        fields:
+          "id,user_id,username,name,account_type,profile_picture_url,followers_count,follows_count,media_count",
         access_token: accessToken,
       },
     });
@@ -52,12 +57,22 @@ async function fetchProfile({ accessToken, providerAccountId }) {
       providerAccountId: providerAccountId || response.data.id,
       profile: {
         instagramUserId: response.data.id,
+        appScopedUserId: response.data.user_id,
         username: response.data.username,
+        name: response.data.name,
         accountType: response.data.account_type,
+        profilePictureUrl: response.data.profile_picture_url,
+        followersCount: response.data.followers_count,
+        followsCount: response.data.follows_count,
+        mediaCount: response.data.media_count,
       },
     };
   } catch (error) {
-    throw new HttpError(502, "Failed to fetch Instagram profile.", error.response?.data || error.message);
+    throw new HttpError(
+      502,
+      "Failed to fetch Instagram profile from graph.instagram.com/me.",
+      error.response?.data || error.message,
+    );
   }
 }
 

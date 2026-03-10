@@ -40,6 +40,24 @@ On callback success, the backend redirects to:
 - `localyse://social-connect?provider=youtube&status=success`
 - `localyse://social-connect?provider=instagram&status=success`
 
+## Instagram requirements
+
+The Instagram provider in this backend is intended for Instagram API with
+Instagram Login for professional/business accounts, not the older Basic Display
+profile-only flow.
+
+Make sure your Meta app is configured with:
+
+- the exact callback URI:
+  `https://your-domain.com/api/instagram/callback`
+- business/professional Instagram login enabled
+- the Instagram scopes you actually request, such as:
+  - `instagram_business_basic`
+  - `instagram_business_manage_messages`
+  - `instagram_business_manage_comments`
+  - `instagram_business_content_publish`
+  - `instagram_business_manage_insights`
+
 ## Setup
 
 1. Copy `.env.example` to `.env`.
