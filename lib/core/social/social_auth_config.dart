@@ -1,7 +1,7 @@
 class SocialAuthConfig {
   static const String backendBaseUrl = String.fromEnvironment(
     'SOCIAL_BACKEND_BASE_URL',
-    defaultValue: 'https://localyse-backend.onrender.com',
+    defaultValue: 'https://localyse-app.onrender.com',
   );
 
   static const String callbackScheme = String.fromEnvironment(
