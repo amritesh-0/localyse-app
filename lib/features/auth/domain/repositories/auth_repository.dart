@@ -7,6 +7,7 @@ abstract class AuthRepository {
   Future<UserCredential> signUpWithEmail(String email, String password, String fullName, String role);
   Future<UserCredential> signInWithGoogle();
   Future<void> signOut();
+  Future<String?> getCurrentUserIdToken({bool forceRefresh = false});
   Future<void> sendPasswordResetEmail(String email);
   Future<void> updateUserData(String uid, Map<String, dynamic> data);
   Future<bool> checkOnboardingStatus(String uid);

@@ -92,6 +92,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<String?> getCurrentUserIdToken({bool forceRefresh = false}) async {
+    return _auth.currentUser?.getIdToken(forceRefresh);
+  }
+
+  @override
   Future<void> sendPasswordResetEmail(String email) async {
     await _auth.sendPasswordResetEmail(email: email);
   }

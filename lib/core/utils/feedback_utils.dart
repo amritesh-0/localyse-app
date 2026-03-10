@@ -11,6 +11,7 @@ class AppFeedback {
     Duration duration = const Duration(seconds: 3),
   }) {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final mediaQuery = MediaQuery.of(context);
     
     // Clear existing snackbars
     scaffoldMessenger.removeCurrentSnackBar();
@@ -75,7 +76,7 @@ class AppFeedback {
         ),
         behavior: SnackBarBehavior.floating,
         margin: EdgeInsets.only(
-          bottom: MediaQuery.of(context).size.height * 0.82,
+          bottom: mediaQuery.padding.bottom + 20,
           left: 20,
           right: 20,
         ),
