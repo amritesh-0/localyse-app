@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_theme.dart';
 
 class EarningsScreen extends StatelessWidget {
   const EarningsScreen({super.key});
@@ -7,25 +6,39 @@ class EarningsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Colors.white,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
           SliverToBoxAdapter(child: _buildWalletHeader(context)),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSectionHeader('Earning Summary'),
+                  const SizedBox(height: 32),
+                  _buildSectionHeader('Performance'),
                   const SizedBox(height: 16),
                   _buildSummaryGrid(),
-                  const SizedBox(height: 32),
-                  _buildSectionHeader('Recent Transactions'),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 40),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildSectionHeader('Activity Log'),
+                      Text(
+                        'View All',
+                        style: TextStyle(
+                          color: Colors.grey[400],
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
                   _buildTransactionList(),
-                  const SizedBox(height: 100), // Background padding for nav bar
+                  const SizedBox(height: 120), // Background padding for nav bar
                 ],
               ),
             ),
@@ -38,67 +51,66 @@ class EarningsScreen extends StatelessWidget {
   Widget _buildWalletHeader(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(24, 60, 24, 40),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(40),
-          bottomRight: Radius.circular(40),
+      padding: const EdgeInsets.fromLTRB(24, 80, 24, 48),
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(48),
+          bottomRight: Radius.circular(48),
         ),
         boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 20, offset: Offset(0, 10)),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 40,
+            offset: const Offset(0, 20),
+          ),
         ],
       ),
       child: Column(
         children: [
-          const Text(
-            'Lifetime Earning',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.grey),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 14),
+                SizedBox(width: 8),
+                Text(
+                  'TOTAL BALANCE',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white70,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 24),
           const Text(
             '\$12,450.00',
-            style: TextStyle(fontSize: 42, fontWeight: FontWeight.w900, color: Colors.black, letterSpacing: -1),
+            style: TextStyle(
+              fontSize: 52,
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+              letterSpacing: -2,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Lifetime Earning Portfolio',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.white.withOpacity(0.4),
+            ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildActionBtn({
-    required IconData icon,
-    required String label,
-    required Color color,
-    Color textColor = Colors.white,
-    required VoidCallback onTap,
-  }) {
-    return Container(
-      height: 60,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(24),
-        border: color == Colors.white ? Border.all(color: Colors.grey[200]!) : null,
-        boxShadow: color != Colors.white
-            ? [BoxShadow(color: color.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8))]
-            : null,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(24),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: textColor, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(color: textColor, fontWeight: FontWeight.w800, fontSize: 15),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -107,10 +119,10 @@ class EarningsScreen extends StatelessWidget {
     return Text(
       title.toUpperCase(),
       style: TextStyle(
-        fontSize: 11,
+        fontSize: 12,
         fontWeight: FontWeight.w900,
-        color: Colors.grey[400],
-        letterSpacing: 1.5,
+        color: Colors.black,
+        letterSpacing: 1.2,
       ),
     );
   }
@@ -120,21 +132,21 @@ class EarningsScreen extends StatelessWidget {
       children: [
         Expanded(
           child: _buildSummaryCard(
-            label: 'This Month',
+            label: 'Mar Revenue',
             amount: '\$2,840',
-            trend: '+12%',
-            icon: Icons.trending_up_rounded,
-            color: const Color(0xFF7C3AED),
+            trend: '+12.4%',
+            icon: Icons.auto_graph_rounded,
+            color: const Color(0xFF6366F1),
           ),
         ),
         const SizedBox(width: 16),
         Expanded(
           child: _buildSummaryCard(
-            label: 'Pending',
+            label: 'Locked',
             amount: '\$850',
-            trend: '2 Ads',
-            icon: Icons.timer_rounded,
-            color: const Color(0xFFF97316),
+            trend: 'Pending',
+            icon: Icons.lock_clock_rounded,
+            color: const Color(0xFFF59E0B),
           ),
         ),
       ],
@@ -149,41 +161,59 @@ class EarningsScreen extends StatelessWidget {
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: Colors.grey[100]!),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 10)),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
+          ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: color.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 20),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Text(
             amount,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.black),
+            style: const TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.w900,
+              color: Colors.black,
+              letterSpacing: -1,
+            ),
           ),
           const SizedBox(height: 4),
           Row(
             children: [
               Text(
                 label,
-                style: TextStyle(color: Colors.grey[500], fontSize: 12, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: Colors.grey[400],
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               const Spacer(),
               Text(
                 trend,
-                style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w800),
+                style: TextStyle(
+                  color: color,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ],
           ),
@@ -195,39 +225,41 @@ class EarningsScreen extends StatelessWidget {
   Widget _buildTransactionList() {
     return Column(
       children: [
-        _buildTransactionTile('Nike Campaign', 'Mar 10, 2026', '+\$800.00', true),
-        const SizedBox(height: 12),
-        _buildTransactionTile('Adidas Reel', 'Mar 08, 2026', '+\$1,200.00', true),
-        const SizedBox(height: 12),
-        _buildTransactionTile('Withdrawal to Bank', 'Mar 05, 2026', '-\$500.00', false),
-        const SizedBox(height: 12),
-        _buildTransactionTile('Starbucks Post', 'Mar 02, 2026', '+\$450.00', true),
+        _buildTransactionTile('Nike Basketball', 'Mar 10, 2026', '+\$800.00', true, 'NB'),
+        _buildTransactionTile('Adidas Originals', 'Mar 08, 2026', '+\$1,200.00', true, 'AO'),
+        _buildTransactionTile('Express Payout', 'Mar 05, 2026', '-\$500.00', false, 'WT'),
+        _buildTransactionTile('Starbucks Winter', 'Mar 02, 2026', '+\$450.00', true, 'SB'),
       ],
     );
   }
 
-  Widget _buildTransactionTile(String title, String date, String amount, bool isCredit) {
+  Widget _buildTransactionTile(String title, String date, String amount, bool isCredit, String code) {
     return Container(
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 15, offset: const Offset(0, 8)),
-        ],
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: Colors.grey[50]!),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            height: 52,
+            width: 52,
             decoration: BoxDecoration(
-              color: isCredit ? const Color(0xFFE8F5E9) : const Color(0xFFFFEBEE),
-              shape: BoxShape.circle,
+              color: isCredit ? Colors.grey[50] : Colors.red[50],
+              borderRadius: BorderRadius.circular(18),
             ),
-            child: Icon(
-              isCredit ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
-              color: isCredit ? const Color(0xFF2E7D32) : const Color(0xFFC62828),
-              size: 20,
+            child: Center(
+              child: Text(
+                code,
+                style: TextStyle(
+                  color: isCredit ? Colors.black : Colors.red[900],
+                  fontWeight: FontWeight.w900,
+                  fontSize: 14,
+                ),
+              ),
             ),
           ),
           const SizedBox(width: 16),
@@ -237,22 +269,44 @@ class EarningsScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: Colors.black),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 15,
+                    color: Colors.black,
+                  ),
                 ),
+                const SizedBox(height: 2),
                 Text(
                   date,
-                  style: TextStyle(color: Colors.grey[400], fontSize: 12, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: Colors.grey[400],
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
           ),
-          Text(
-            amount,
-            style: TextStyle(
-              fontWeight: FontWeight.w900,
-              fontSize: 16,
-              color: isCredit ? const Color(0xFF2E7D32) : Colors.black,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                amount,
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 16,
+                  color: isCredit ? const Color(0xFF10B981) : Colors.black,
+                ),
+              ),
+              Text(
+                isCredit ? 'Received' : 'Success',
+                style: TextStyle(
+                  color: Colors.grey[300],
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
           ),
         ],
       ),

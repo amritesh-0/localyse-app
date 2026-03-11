@@ -9,7 +9,6 @@ import '../pages/earnings_screen.dart';
 import '../pages/planner_screen.dart';
 import '../widgets/influencer_home_view.dart';
 import '../widgets/my_ads_view.dart';
-import '../widgets/influencer_profile_view.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({
@@ -110,14 +109,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Icon(
               icon,
-              color: isSelected ? Colors.white : Colors.grey[400],
+              color: isSelected ? Colors.white : Colors.grey[700],
               size: 24,
             ),
             const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.white : Colors.grey[400],
+                color: isSelected ? Colors.white : Colors.grey[700],
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                 letterSpacing: 0.1,

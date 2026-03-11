@@ -19,8 +19,10 @@ class CampaignService extends ChangeNotifier {
 
   void _initializeMockData() {
     if (_campaigns.isNotEmpty) return;
+    
+    final now = DateTime.now();
     _campaigns.addAll([
-      const AdCampaign(
+      AdCampaign(
         id: '1',
         title: 'Summer Collection Reveal',
         brandName: 'Urban Style Co.',
@@ -30,8 +32,9 @@ class CampaignService extends ChangeNotifier {
         payout: 250.0,
         requirements: ['Min 5k followers', '2 IG Stories', '1 Reel'],
         status: AdStatus.available,
+        deadline: now.add(const Duration(days: 3)),
       ),
-      const AdCampaign(
+      AdCampaign(
         id: '2',
         title: 'Organic Juice Bar Opening',
         brandName: 'FreshPress',
@@ -41,8 +44,9 @@ class CampaignService extends ChangeNotifier {
         payout: 150.0,
         requirements: ['Must be NYC based', 'High engagement'],
         status: AdStatus.available,
+        deadline: now.add(const Duration(days: 1)),
       ),
-      const AdCampaign(
+      AdCampaign(
         id: '3',
         title: 'Cafe Branding',
         brandName: 'The Bean Place',
@@ -52,8 +56,9 @@ class CampaignService extends ChangeNotifier {
         location: 'New York, NY',
         payout: 100,
         status: AdStatus.applied,
+        deadline: now.add(const Duration(days: 2)),
       ),
-      const AdCampaign(
+      AdCampaign(
         id: '4',
         title: 'Fitness Gear Launch',
         brandName: 'IronCore',
@@ -63,8 +68,9 @@ class CampaignService extends ChangeNotifier {
         location: 'Global',
         payout: 500,
         status: AdStatus.ongoing,
+        deadline: now, // Today
       ),
-      const AdCampaign(
+      AdCampaign(
         id: '5',
         title: 'Tech Gadget Review',
         brandName: 'NextGen',
@@ -74,8 +80,9 @@ class CampaignService extends ChangeNotifier {
         payout: 300.0,
         requirements: ['Tech-focused niche', 'Detailed review video'],
         status: AdStatus.available,
+        deadline: now.add(const Duration(days: 5)),
       ),
-      const AdCampaign(
+      AdCampaign(
         id: '6',
         title: 'Sustainable Fashion Shoot',
         brandName: 'EcoWear',
@@ -85,8 +92,9 @@ class CampaignService extends ChangeNotifier {
         location: 'Los Angeles, CA',
         payout: 450,
         status: AdStatus.applied,
+        deadline: now.add(const Duration(days: 4)),
       ),
-      const AdCampaign(
+      AdCampaign(
         id: '7',
         title: 'Vegan Food Festival',
         brandName: 'PureBite',
@@ -96,8 +104,9 @@ class CampaignService extends ChangeNotifier {
         location: 'Austin, TX',
         payout: 350,
         status: AdStatus.approved,
+        deadline: now, // Today
       ),
-      const AdCampaign(
+      AdCampaign(
         id: '8',
         title: 'Home Office Setups',
         brandName: 'WorkWell',
@@ -107,8 +116,9 @@ class CampaignService extends ChangeNotifier {
         location: 'Remote',
         payout: 600,
         status: AdStatus.ongoing,
+        deadline: now.add(const Duration(days: 1)), // Tomorrow
       ),
-      const AdCampaign(
+      AdCampaign(
         id: '9',
         title: 'Winter Travel Series',
         brandName: 'GlobeTrot',
@@ -118,8 +128,9 @@ class CampaignService extends ChangeNotifier {
         location: 'Global',
         payout: 1500,
         status: AdStatus.pendingPayment,
+        deadline: now.subtract(const Duration(days: 2)),
       ),
-      const AdCampaign(
+      AdCampaign(
         id: '10',
         title: 'Tech Unboxing',
         brandName: 'GigaTech',
@@ -129,8 +140,9 @@ class CampaignService extends ChangeNotifier {
         location: 'Remote',
         payout: 800,
         status: AdStatus.approved,
+        deadline: now.add(const Duration(days: 2)),
       ),
-      const AdCampaign(
+      AdCampaign(
         id: '11',
         title: 'Fragrance Review',
         brandName: 'Oud Luxe',
@@ -140,8 +152,9 @@ class CampaignService extends ChangeNotifier {
         location: 'Paris',
         payout: 150,
         status: AdStatus.pendingPayment,
+        deadline: now.subtract(const Duration(days: 1)),
       ),
-      const AdCampaign(
+      AdCampaign(
         id: '12',
         title: 'Organic Food Tour',
         brandName: 'GreenPlate',
@@ -151,28 +164,7 @@ class CampaignService extends ChangeNotifier {
         location: 'California',
         payout: 1200,
         status: AdStatus.paid,
-      ),
-      const AdCampaign(
-        id: '13',
-        title: 'Skincare Routine',
-        brandName: 'Luminous',
-        brandLogo: 'L',
-        description: 'Share your night-time skincare routine featuring our vitamin C serum.',
-        requirements: ['1 Reel', 'Product Review'],
-        location: 'Miami, FL',
-        payout: 200,
-        status: AdStatus.paid,
-      ),
-      const AdCampaign(
-        id: '14',
-        title: 'Coffee Barista Series',
-        brandName: 'RoastMasters',
-        brandLogo: 'R',
-        description: 'Create aesthetic coffee brewing videos using our artisan beans.',
-        requirements: ['Barista Skills', '3 Reels'],
-        location: 'Chicago, IL',
-        payout: 400,
-        status: AdStatus.rejected,
+        deadline: now.subtract(const Duration(days: 10)),
       ),
     ]);
   }

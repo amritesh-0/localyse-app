@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/models/influencer_models.dart';
@@ -676,119 +675,176 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
   }
 
   void _showLocationSearch() {
+    String searchQuery = '';
+    
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.75,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
-        ),
-        padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-        child: Column(
-          children: [
-            Container(
-              height: 5,
-              width: 50,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(10),
-              ),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) {
+          final filteredLocations = locations
+              .where((loc) => loc.toLowerCase().contains(searchQuery.toLowerCase()))
+              .toList();
+
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.75,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
             ),
-            const SizedBox(height: 32),
-            Row(
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+            child: Column(
               children: [
-                const Text(
-                  'Select Location',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: -0.5),
-                ),
-                const Spacer(),
                 Container(
+                  height: 5,
+                  width: 50,
                   decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    shape: BoxShape.circle,
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  child: IconButton(
-                    icon: const Icon(Icons.close_rounded, color: Colors.black, size: 20),
-                    onPressed: () => Navigator.pop(context),
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  children: [
+                    const Text(
+                      'Select Location',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: -0.5),
+                    ),
+                    const Spacer(),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.close_rounded, color: Colors.black, size: 20),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                TextField(
+                  onChanged: (value) {
+                    setModalState(() {
+                      searchQuery = value;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Search for a city...',
+                    hintStyle: TextStyle(color: Colors.grey[400], fontWeight: FontWeight.w600),
+                    prefixIcon: const Icon(Icons.search_rounded, color: Colors.black),
+                    filled: true,
+                    fillColor: Colors.grey[50],
+                    contentPadding: const EdgeInsets.symmetric(vertical: 20),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: BorderSide(color: Colors.grey[100] ?? Colors.grey),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                    ),
                   ),
+                ),
+                const SizedBox(height: 24),
+                Expanded(
+                  child: filteredLocations.isEmpty
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.search_off_rounded, size: 64, color: Colors.grey[300]),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No cities found for "$searchQuery"',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.grey[500],
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        )
+                      : ListView.builder(
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: filteredLocations.length,
+                          itemBuilder: (context, index) {
+                            final location = filteredLocations[index];
+                            final isSelected = location == selectedLocation;
+                            return Padding(
+                              key: ValueKey(location),
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(24),
+                                  onTap: () {
+                                    setState(() {
+                                      selectedLocation = location;
+                                    });
+                                    Navigator.pop(context);
+                                  },
+                                  child: Container(
+                                    height: 72,
+                                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                                    decoration: BoxDecoration(
+                                      color: isSelected ? Colors.black : Colors.white,
+                                      borderRadius: BorderRadius.circular(24),
+                                      border: isSelected
+                                          ? null
+                                          : Border.all(color: Colors.grey[100] ?? Colors.grey),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: isSelected ? Colors.white.withOpacity(0.2) : Colors.grey[50],
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(
+                                            Icons.location_on_rounded,
+                                            color: isSelected ? Colors.white : Colors.black,
+                                            size: 18,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: Text(
+                                            location,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                                              color: isSelected ? Colors.white : Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Icon(
+                                          isSelected ? Icons.check_circle_rounded : Icons.chevron_right_rounded,
+                                          color: isSelected ? Colors.white : Colors.grey,
+                                          size: 20,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                 ),
               ],
             ),
-            const SizedBox(height: 24),
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'Search for a city...',
-                hintStyle: TextStyle(color: Colors.grey[400], fontWeight: FontWeight.w600),
-                prefixIcon: const Icon(Icons.search_rounded, color: Colors.black),
-                filled: true,
-                fillColor: Colors.grey[50],
-                contentPadding: const EdgeInsets.symmetric(vertical: 20),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide(color: Colors.grey[100] ?? Colors.grey),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Expanded(
-              child: ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                itemCount: locations.length,
-                itemBuilder: (context, index) {
-                  final isSelected = locations[index] == selectedLocation;
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                      tileColor: isSelected ? Colors.black : Colors.white,
-                      leading: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: isSelected ? Colors.white.withOpacity(0.2) : Colors.grey[100],
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.location_on_rounded,
-                          color: isSelected ? Colors.white : Colors.black,
-                          size: 20,
-                        ),
-                      ),
-                      title: Text(
-                        locations[index],
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                          color: isSelected ? Colors.white : Colors.black,
-                        ),
-                      ),
-                      trailing: isSelected
-                          ? const Icon(Icons.check_circle_rounded, color: Colors.white)
-                          : const Icon(Icons.chevron_right_rounded, color: Colors.grey),
-                      onTap: () {
-                        setState(() {
-                          selectedLocation = locations[index];
-                        });
-                        Navigator.pop(context);
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

@@ -19,77 +19,123 @@ class ChatListScreen extends StatelessWidget {
     }).toList();
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
-              ],
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: Colors.black),
-              onPressed: () => Navigator.pop(context),
+      backgroundColor: Colors.white,
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          _buildPremiumHeader(context),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: _buildSearchBar(),
             ),
           ),
-        ),
-        title: const Text(
-          'Messages',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 18, letterSpacing: -0.5),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search_rounded, color: Colors.black),
-            onPressed: () {},
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            sliver: activeCampaigns.isEmpty
+                ? SliverFillRemaining(child: _buildEmptyState())
+                : SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => _buildChatTile(context, activeCampaigns[index]),
+                      childCount: activeCampaigns.length,
+                    ),
+                  ),
           ),
-          const SizedBox(width: 8),
+          const SliverToBoxAdapter(child: SizedBox(height: 120)),
         ],
       ),
-      body: activeCampaigns.isEmpty
-          ? _buildEmptyState()
-          : ListView.builder(
-              padding: const EdgeInsets.all(24),
-              physics: const BouncingScrollPhysics(),
-              itemCount: activeCampaigns.length,
-              itemBuilder: (context, index) {
-                final ad = activeCampaigns[index];
-                return _buildChatTile(context, ad);
-              },
-            ),
+    );
+  }
+
+  Widget _buildPremiumHeader(BuildContext context) {
+    return SliverAppBar(
+      backgroundColor: Colors.white,
+      elevation: 0,
+      centerTitle: true,
+      pinned: true,
+      leading: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[50],
+            shape: BoxShape.circle,
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: Colors.black),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+      ),
+      title: const Text(
+        'Direct Messages',
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.w900,
+          fontSize: 18,
+          letterSpacing: -0.5,
+        ),
+      ),
+      actions: [
+        Container(
+          margin: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.grey[50],
+            shape: BoxShape.circle,
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.more_horiz_rounded, color: Colors.black),
+            onPressed: () {},
+          ),
+        ),
+        const SizedBox(width: 8),
+      ],
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey[100]!),
+      ),
+      child: TextField(
+        decoration: InputDecoration(
+          hintText: 'Search conversations...',
+          hintStyle: TextStyle(
+            color: Colors.grey[300],
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+          prefixIcon: Icon(Icons.search_rounded, color: Colors.grey[400], size: 20),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 16),
+        ),
+      ),
     );
   }
 
   Widget _buildEmptyState() {
     return Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Colors.grey[50],
               shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 10)),
-              ],
             ),
-            child: Icon(Icons.chat_bubble_outline_rounded, size: 64, color: Colors.grey[300]),
+            child: Icon(Icons.chat_bubble_outline_rounded, size: 48, color: Colors.grey[200]),
           ),
           const SizedBox(height: 24),
           const Text(
-            'No conversations yet',
+            'Quiet in here...',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.black),
           ),
           const SizedBox(height: 8),
           Text(
-            'Active campaigns will appear here.',
+            'Active campaigns show up here.',
             style: TextStyle(fontSize: 14, color: Colors.grey[400], fontWeight: FontWeight.w600),
           ),
         ],
@@ -99,13 +145,11 @@ class ChatListScreen extends StatelessWidget {
 
   Widget _buildChatTile(BuildContext context, AdCampaign ad) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 15, offset: const Offset(0, 8)),
-        ],
+        border: Border.all(color: Colors.grey[50]!),
       ),
       child: Material(
         color: Colors.transparent,
@@ -123,30 +167,30 @@ class ChatListScreen extends StatelessWidget {
                   alignment: Alignment.bottomRight,
                   children: [
                     Container(
+                      height: 60,
+                      width: 60,
                       decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.grey.shade100, width: 2),
+                        color: AppColors.primary.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(22),
                       ),
-                      child: CircleAvatar(
-                        radius: 28,
-                        backgroundColor: AppColors.primaryLight,
+                      child: Center(
                         child: Text(
                           ad.brandLogo,
                           style: const TextStyle(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w900,
-                            fontSize: 20,
+                            fontSize: 22,
                           ),
                         ),
                       ),
                     ),
                     Container(
-                      height: 14,
-                      width: 14,
+                      height: 16,
+                      width: 16,
                       decoration: BoxDecoration(
                         color: const Color(0xFF10B981),
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
+                        border: Border.all(color: Colors.white, width: 3),
                       ),
                     ),
                   ],
@@ -161,20 +205,29 @@ class ChatListScreen extends StatelessWidget {
                         children: [
                           Text(
                             ad.brandName,
-                            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.black),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w900, 
+                              fontSize: 16, 
+                              color: Colors.black,
+                              letterSpacing: -0.3,
+                            ),
                           ),
                           Text(
-                            '2h ago',
-                            style: TextStyle(color: Colors.grey[400], fontSize: 11, fontWeight: FontWeight.w700),
+                            'Just now',
+                            style: TextStyle(
+                              color: Colors.grey[300], 
+                              fontSize: 11, 
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Row(
                         children: [
                           Expanded(
                             child: Text(
-                              'Could you please share your latest engagement metrics...',
+                              'Please share your metrics for the last campaign we ran...',
                               style: TextStyle(
                                 color: Colors.grey[500],
                                 fontSize: 13,
@@ -184,16 +237,24 @@ class ChatListScreen extends StatelessWidget {
                               maxLines: 1,
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 12),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            height: 20,
+                            constraints: const BoxConstraints(minWidth: 20),
+                            padding: const EdgeInsets.symmetric(horizontal: 6),
                             decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.black,
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            child: const Text(
-                              '2',
-                              style: TextStyle(color: AppColors.primary, fontSize: 10, fontWeight: FontWeight.w900),
+                            child: const Center(
+                              child: Text(
+                                '2',
+                                style: TextStyle(
+                                  color: Colors.white, 
+                                  fontSize: 10, 
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
                             ),
                           ),
                         ],
