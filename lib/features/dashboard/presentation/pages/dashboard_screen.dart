@@ -5,8 +5,10 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../auth/data/repositories/auth_repository_impl.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../onboarding/presentation/pages/role_selection_screen.dart';
+import '../widgets/influencer_home_view.dart';
+import '../widgets/my_ads_view.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({
     super.key,
     required this.role,
@@ -15,10 +17,114 @@ class DashboardScreen extends StatelessWidget {
   final AppUserRole role;
 
   @override
-  Widget build(BuildContext context) {
-    final AuthRepository authRepository = AuthRepositoryImpl();
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
 
-    final _DashboardContent content = _contentForRole(role);
+class _DashboardScreenState extends State<DashboardScreen> {
+  int _currentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    // If not an influencer, show the legacy layout or appropriate business layout
+    if (widget.role != AppUserRole.influencer) {
+      return _buildLegacyDashboard(context);
+    }
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF7F8FC),
+      extendBody: true, // Allows content to be visible behind the floating nav
+      body: Stack(
+        children: [
+          SafeArea(
+            bottom: false,
+            child: IndexedStack(
+              index: _currentIndex,
+              children: [
+                InfluencerHomeView(),
+                MyAdsView(),
+                Center(child: Text('Influencer Stats (Coming Soon)')),
+                Center(child: Text('Profile Settings')),
+              ],
+            ),
+          ),
+          Positioned(
+            left: 20,
+            right: 20,
+            bottom: 24,
+            child: _buildFloatingNavBar(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFloatingNavBar() {
+    return Container(
+      height: 70,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(35),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.12),
+            blurRadius: 25,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildNavItem(0, Icons.explore_outlined, Icons.explore_rounded, 'Discover'),
+          _buildNavItem(1, Icons.campaign_outlined, Icons.campaign_rounded, 'My Ads'),
+          _buildNavItem(2, Icons.bar_chart_rounded, Icons.bar_chart_rounded, 'Stats'),
+          _buildNavItem(3, Icons.person_outline_rounded, Icons.person_rounded, 'Profile'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavItem(int index, IconData icon, IconData activeIcon, String label) {
+    final isSelected = _currentIndex == index;
+    return InkWell(
+      onTap: () => setState(() => _currentIndex = index),
+      borderRadius: BorderRadius.circular(35),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary.withOpacity(0.12) : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isSelected ? activeIcon : icon,
+              color: isSelected ? AppColors.primary : Colors.grey[400],
+              size: 26,
+            ),
+            if (isSelected) ...[
+              const SizedBox(height: 2),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLegacyDashboard(BuildContext context) {
+    final AuthRepository authRepository = AuthRepositoryImpl();
+    final _DashboardContent content = _contentForRole(widget.role);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
@@ -92,61 +198,57 @@ class DashboardScreen extends StatelessWidget {
   Widget _buildSectionCard(_DashboardSection section) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
-      child: Builder(
-        builder: (context) {
-          return Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(10),
-                  blurRadius: 18,
-                  offset: const Offset(0, 8),
-                ),
-              ],
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(10),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
             ),
-            child: Row(
-              children: [
-                Container(
-                  height: 52,
-                  width: 52,
-                  decoration: BoxDecoration(
-                    color: section.color.withAlpha(24),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Icon(section.icon, color: section.color),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        section.title,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        section.subtitle,
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 14,
-                          height: 1.4,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              height: 52,
+              width: 52,
+              decoration: BoxDecoration(
+                color: section.color.withAlpha(24),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(section.icon, color: section.color),
             ),
-          );
-        },
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    section.title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    section.subtitle,
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 14,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
