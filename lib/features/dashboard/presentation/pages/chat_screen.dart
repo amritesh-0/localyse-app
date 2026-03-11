@@ -87,57 +87,70 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: _buildAppBar(),
+      backgroundColor: Colors.grey[50], // Seamless light background
+      appBar: _buildPremiumAppBar(),
       body: Column(
         children: [
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
               itemCount: _messages.length,
+              physics: const BouncingScrollPhysics(),
               itemBuilder: (context, index) {
                 final message = _messages[index];
-                return _buildMessageBubble(message);
+                return _buildPremiumMessageBubble(message);
               },
             ),
           ),
-          _buildQuickReplies(),
-          _buildMessageInput(),
+          _buildPremiumQuickReplies(),
+          _buildFloatingMessageInput(),
         ],
       ),
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
+  PreferredSizeWidget _buildPremiumAppBar() {
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
       centerTitle: false,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black, size: 20),
-        onPressed: () => Navigator.pop(context),
+      leading: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[50],
+            shape: BoxShape.circle,
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black, size: 16),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
       ),
       title: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            height: 44,
+            width: 44,
             decoration: BoxDecoration(
               color: AppColors.primaryLight,
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(14),
             ),
-            child: Text(
-              widget.ad.brandLogo,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            child: Center(
+              child: Text(
+                widget.ad.brandLogo,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.primary),
+              ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 widget.ad.brandName,
-                style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 16),
+                style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: -0.5),
               ),
               Row(
                 children: [
@@ -146,10 +159,10 @@ class _ChatScreenState extends State<ChatScreen> {
                     height: 6,
                     decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle),
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 6),
                   Text(
-                    'Online',
-                    style: TextStyle(color: Colors.grey[500], fontSize: 11, fontWeight: FontWeight.w700),
+                    'Typically replies in 2h',
+                    style: TextStyle(color: Colors.grey[400], fontSize: 11, fontWeight: FontWeight.w800),
                   ),
                 ],
               ),
@@ -159,80 +172,106 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.videocam_outlined, color: Colors.black),
+          icon: const Icon(Icons.videocam_outlined, color: Colors.black, size: 22),
           onPressed: () {},
         ),
-        IconButton(
-          icon: const Icon(Icons.more_vert_rounded, color: Colors.black),
-          onPressed: () {},
-        ),
+        const SizedBox(width: 4),
       ],
     );
   }
 
-  Widget _buildMessageBubble(ChatMessage message) {
+  Widget _buildPremiumMessageBubble(ChatMessage message) {
     final bool isMe = message.sender == MessageSender.influencer;
     
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.only(bottom: 24),
       child: Column(
         crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
           Container(
             constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: BoxDecoration(
-              color: isMe ? Colors.black : Colors.grey[100],
+              color: isMe ? Colors.black : Colors.white,
               borderRadius: BorderRadius.only(
-                topLeft: const Radius.circular(20),
-                topRight: const Radius.circular(20),
-                bottomLeft: Radius.circular(isMe ? 20 : 4),
-                bottomRight: Radius.circular(isMe ? 4 : 20),
+                topLeft: const Radius.circular(24),
+                topRight: const Radius.circular(24),
+                bottomLeft: Radius.circular(isMe ? 24 : 6),
+                bottomRight: Radius.circular(isMe ? 6 : 24),
               ),
+              boxShadow: !isMe ? [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ] : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
             child: Text(
               message.content,
               style: TextStyle(
                 color: isMe ? Colors.white : Colors.black,
-                fontSize: 14,
+                fontSize: 15,
                 fontWeight: FontWeight.w500,
-                height: 1.4,
+                height: 1.5,
               ),
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            '${message.timestamp.hour}:${message.timestamp.minute.toString().padLeft(2, '0')}',
-            style: TextStyle(color: Colors.grey[400], fontSize: 10, fontWeight: FontWeight.bold),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              '${message.timestamp.hour}:${message.timestamp.minute.toString().padLeft(2, '0')}',
+              style: TextStyle(color: Colors.grey[400], fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildQuickReplies() {
-    final List<String> replies = ['Got it!', 'Sent common!', 'Checking now', 'Sure'];
+  Widget _buildPremiumQuickReplies() {
+    final List<String> replies = ['Got it!', 'Checking stats...', 'Sending now', 'Sure!'];
     
     return Container(
-      height: 40,
-      margin: const EdgeInsets.only(bottom: 8),
+      height: 44,
+      margin: const EdgeInsets.only(bottom: 12),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         itemCount: replies.length,
+        physics: const BouncingScrollPhysics(),
         itemBuilder: (context, index) {
           return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: ActionChip(
-              label: Text(replies[index]),
-              labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary),
-              backgroundColor: AppColors.primaryLight,
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide.none),
-              onPressed: () {
-                _messageController.text = replies[index];
-                _sendMessage();
-              },
+            padding: const EdgeInsets.only(right: 10),
+            child: Material(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(22),
+              child: InkWell(
+                onTap: () {
+                  _messageController.text = replies[index];
+                  _sendMessage();
+                },
+                borderRadius: BorderRadius.circular(22),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: Colors.grey[100]!),
+                  ),
+                  child: Text(
+                    replies[index],
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.black),
+                  ),
+                ),
+              ),
             ),
           );
         },
@@ -240,23 +279,21 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildMessageInput() {
+  Widget _buildFloatingMessageInput() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 40),
+      decoration: const BoxDecoration(
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
-          ),
-        ],
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(32),
+          topRight: Radius.circular(32),
+        ),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            height: 52,
+            width: 52,
             decoration: BoxDecoration(
               color: Colors.grey[50],
               shape: BoxShape.circle,
@@ -265,30 +302,41 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: TextField(
-              controller: _messageController,
-              decoration: InputDecoration(
-                hintText: 'Type message...',
-                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14, fontWeight: FontWeight.w600),
-                filled: true,
-                fillColor: Colors.grey[50],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: Container(
+              height: 52,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(26),
               ),
-              onSubmitted: (_) => _sendMessage(),
+              child: TextField(
+                controller: _messageController,
+                decoration: InputDecoration(
+                  hintText: 'Type message...',
+                  hintStyle: TextStyle(color: Colors.grey[300], fontSize: 14, fontWeight: FontWeight.w700),
+                  border: InputBorder.none,
+                ),
+                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                onSubmitted: (_) => _sendMessage(),
+              ),
             ),
           ),
           const SizedBox(width: 12),
           GestureDetector(
             onTap: _sendMessage,
             child: Container(
-              padding: const EdgeInsets.all(14),
-              decoration: const BoxDecoration(
+              height: 52,
+              width: 52,
+              decoration: BoxDecoration(
                 color: Colors.black,
                 shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
             ),

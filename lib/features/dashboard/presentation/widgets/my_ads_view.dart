@@ -38,81 +38,112 @@ class _MyAdsViewState extends State<MyAdsView> {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 3,
-      child: Column(
-        children: [
-          _buildPremiumTabBarHeader(),
-          Expanded(
-            child: TabBarView(
-              physics: const BouncingScrollPhysics(),
-              children: [
-                _buildAdsList(AdStatus.applied),
-                _buildAdsList(AdStatus.ongoing),
-                _buildAdsList(AdStatus.completed),
-              ],
+      child: Scaffold(
+        backgroundColor: Colors.grey[50], // Seamless light background
+        body: Column(
+          children: [
+            _buildSeamlessHeader(),
+            Expanded(
+              child: TabBarView(
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  _buildAdsList(AdStatus.applied),
+                  _buildAdsList(AdStatus.ongoing),
+                  _buildAdsList(AdStatus.completed),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildPremiumTabBarHeader() {
+  Widget _buildSeamlessHeader() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
+      padding: const EdgeInsets.fromLTRB(24, 60, 24, 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
             'My Campaigns',
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 28,
               fontWeight: FontWeight.w900,
-              color: AppColors.textPrimary,
-              letterSpacing: -0.6,
+              color: Colors.black,
+              letterSpacing: -1.0,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
+          _buildFloatingTabBar(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFloatingTabBar() {
+    final pendingCount = _campaignService.campaigns.where((ad) => ad.status == AdStatus.applied).length;
+    final activeCount = _campaignService.campaigns.where((ad) => 
+      ad.status == AdStatus.approved || 
+      ad.status == AdStatus.ongoing || 
+      ad.status == AdStatus.pendingPayment
+    ).length;
+    final pastCount = _campaignService.campaigns.where((ad) => 
+      ad.status == AdStatus.completed || 
+      ad.status == AdStatus.paid || 
+      ad.status == AdStatus.rejected
+    ).length;
+
+    return Container(
+      height: 58,
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(29),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: TabBar(
+        indicator: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.grey[500],
+        labelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
+        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+        indicatorSize: TabBarIndicatorSize.tab,
+        dividerColor: Colors.transparent,
+        tabs: [
+          _buildTab('Pending', pendingCount),
+          _buildTab('Active', activeCount),
+          _buildTab('Past', pastCount),
+        ],
+      ),
+    );
+  }
+
+  Tab _buildTab(String label, int count) {
+    return Tab(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(label),
+          const SizedBox(width: 6),
           Container(
-            height: 52,
-            padding: const EdgeInsets.all(4),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(20),
+              color: Colors.grey.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(6),
             ),
-            child: TabBar(
-              indicator: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              labelColor: AppColors.primary,
-              unselectedLabelColor: AppColors.textSecondary.withOpacity(0.7),
-              labelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, letterSpacing: 0.2),
-              unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-              indicatorSize: TabBarIndicatorSize.tab,
-              dividerColor: Colors.transparent,
-              tabs: [
-                Tab(text: 'Pending (${_campaignService.campaigns.where((ad) => ad.status == AdStatus.applied).length})'),
-                Tab(text: 'Active (${_campaignService.campaigns.where((ad) => ad.status == AdStatus.approved || ad.status == AdStatus.ongoing || ad.status == AdStatus.pendingPayment).length})'),
-                Tab(text: 'Past (${_campaignService.campaigns.where((ad) => ad.status == AdStatus.completed || ad.status == AdStatus.paid || ad.status == AdStatus.rejected).length})'),
-              ],
+            child: Text(
+              '$count',
+              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900),
             ),
           ),
         ],
@@ -150,149 +181,143 @@ class _MyAdsViewState extends State<MyAdsView> {
       return _buildEmptyState(tabStatus);
     }
 
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 100),
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 120),
       itemCount: filteredAds.length,
       physics: const BouncingScrollPhysics(),
-      separatorBuilder: (_, __) => const SizedBox(height: 20),
-      itemBuilder: (context, index) => _buildEnhancedMyAdCard(context, filteredAds[index]),
+      itemBuilder: (context, index) => _buildPremiumMyAdCard(context, filteredAds[index]),
     );
   }
 
-  Widget _buildEnhancedMyAdCard(BuildContext context, AdCampaign ad) {
+  Widget _buildPremiumMyAdCard(BuildContext context, AdCampaign ad) {
     return Container(
+      margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 20,
-            offset: const Offset(0, 8),
+            offset: const Offset(0, 10),
           ),
         ],
-        border: Border.all(color: Colors.grey.shade50),
       ),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AdDetailsScreen(ad: ad),
-            ),
-          );
-        },
-        borderRadius: BorderRadius.circular(28),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  Container(
-                    height: 52,
-                    width: 52,
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Center(
-                      child: Text(
-                        ad.brandLogo,
-                        style: const TextStyle(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 20,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(32),
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AdDetailsScreen(ad: ad),
+              ),
+            );
+          },
+          borderRadius: BorderRadius.circular(32),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      height: 56,
+                      width: 56,
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryLight,
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Center(
+                        child: Text(
+                          ad.brandLogo,
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 22,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          ad.title,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 16,
-                            color: AppColors.textPrimary,
-                            letterSpacing: -0.3,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          ad.brandName,
-                          style: TextStyle(
-                            color: AppColors.textSecondary.withOpacity(0.8),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  _buildModernStatusBadge(ad.status),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade50,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.payments_rounded,
-                            size: 16,
-                            color: AppColors.primary.withOpacity(0.8),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              ad.status == AdStatus.paid ? 'Payment Received' : 'Estimated Payout',
-                              style: TextStyle(
-                                color: AppColors.textSecondary.withOpacity(0.6),
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.5,
-                              ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            ad.brandName.toUpperCase(),
+                            style: const TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1.5,
                             ),
-                            Text(
-                              '\$${ad.payout.toStringAsFixed(0)}',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w900,
-                                fontSize: 16,
-                                color: ad.status == AdStatus.paid ? const Color(0xFF10B981) : AppColors.textPrimary,
-                              ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            ad.title,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 18,
+                              color: Colors.black,
+                              letterSpacing: -0.5,
+                              height: 1.2,
                             ),
-                          ],
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Flexible(
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: _buildActionButtonForStatus(ad),
+                    _buildModernStatusBadge(ad.status),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[50],
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.payments_rounded, size: 16, color: Colors.black),
+                          ),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                ad.status == AdStatus.paid ? 'PAYMENT RECEIVED' : 'ESTIMATED PAYOUT',
+                                style: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 1.0,
+                                ),
+                              ),
+                              Text(
+                                '\$${ad.payout.toStringAsFixed(0)}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 18,
+                                  color: ad.status == AdStatus.paid ? const Color(0xFF10B981) : Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                    _buildActionButtonForStatus(ad),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -301,42 +326,49 @@ class _MyAdsViewState extends State<MyAdsView> {
   Widget _buildActionButtonForStatus(AdCampaign ad) {
     switch (ad.status) {
       case AdStatus.applied:
-        return _buildPillButton('Chat', Icons.chat_bubble_rounded, Colors.black, () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ChatScreen(ad: ad)),
-          );
+        return _buildActionPill('Chat', Icons.chat_bubble_rounded, Colors.black, () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(ad: ad)));
         });
       case AdStatus.approved:
-        return _buildPillButton('Get Started', Icons.play_arrow_rounded, AppColors.primary, () {});
+        return _buildActionPill('Start', Icons.play_arrow_rounded, AppColors.primary, () {});
       case AdStatus.ongoing:
-        return _buildPillButton('Submit Proof', Icons.upload_file_rounded, AppColors.primary, () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => SubmitProofScreen(ad: ad)),
-          );
+        return _buildActionPill('Submit', Icons.upload_file_rounded, AppColors.primary, () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => SubmitProofScreen(ad: ad)));
         });
       case AdStatus.pendingPayment:
-        return _buildPillButton('Verifying...', Icons.hourglass_top_rounded, Colors.grey[700] ?? Colors.grey, () {});
+        return _buildActionPill('Verifying', Icons.hourglass_top_rounded, Colors.grey[600]!, () {});
       case AdStatus.paid:
-        return _buildPillButton('Receipt', Icons.receipt_long_rounded, Colors.grey[800] ?? Colors.grey, () {});
+        return _buildActionPill('Receipt', Icons.receipt_long_rounded, Colors.grey[800]!, () {});
       default:
         return const SizedBox.shrink();
     }
   }
 
-  Widget _buildPillButton(String label, IconData icon, Color color, VoidCallback onTap) {
-    return ElevatedButton.icon(
-      onPressed: onTap,
-      icon: Icon(icon, size: 16),
-      label: Text(label),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        elevation: 0,
-        textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+  Widget _buildActionPill(String label, IconData icon, Color color, VoidCallback onTap) {
+    return Material(
+      color: color,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 14, color: Colors.white),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -348,47 +380,46 @@ class _MyAdsViewState extends State<MyAdsView> {
     switch (status) {
       case AdStatus.applied:
         color = const Color(0xFFF59E0B);
-        text = 'Pending';
+        text = 'PENDING';
         break;
       case AdStatus.approved:
         color = const Color(0xFF7C3AED);
-        text = 'Approved';
+        text = 'APPROVED';
         break;
       case AdStatus.ongoing:
         color = const Color(0xFF3B82F6);
-        text = 'Active';
+        text = 'ACTIVE';
         break;
       case AdStatus.pendingPayment:
         color = const Color(0xFFEC4899);
-        text = 'Verifying';
+        text = 'VERIFYING';
         break;
       case AdStatus.paid:
         color = const Color(0xFF10B981);
-        text = 'Paid';
+        text = 'PAID';
         break;
       case AdStatus.rejected:
         color = const Color(0xFFEF4444);
-        text = 'Closed';
+        text = 'CLOSED';
         break;
       default:
         color = Colors.grey;
-        text = 'Unknown';
+        text = 'UNKNOWN';
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
         text,
         style: TextStyle(
           color: color,
-          fontSize: 11,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 0.2,
+          fontSize: 9,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 0.5,
         ),
       ),
     );
@@ -402,17 +433,17 @@ class _MyAdsViewState extends State<MyAdsView> {
     switch (status) {
       case AdStatus.applied: 
         title = 'No Applications'; 
-        sub = 'Your pending campaign requests will appear here.';
+        sub = 'Your pending requests will appear here.';
         icon = Icons.hourglass_empty_rounded;
         break;
       case AdStatus.ongoing: 
-        title = 'No Active Campaigns'; 
-        sub = 'Find campaigns in discovery to get started!';
+        title = 'No Active Ads'; 
+        sub = 'Get started with a new campaign!';
         icon = Icons.auto_awesome_rounded;
         break;
       case AdStatus.completed: 
-        title = 'Clean Slate'; 
-        sub = 'You haven\'t completed any campaigns yet.';
+        title = 'No History'; 
+        sub = 'Your past successes will show up here.';
         icon = Icons.history_rounded;
         break;
       default: 
@@ -422,42 +453,44 @@ class _MyAdsViewState extends State<MyAdsView> {
     }
 
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(40),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 48, color: Colors.grey[400]),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
             ),
-            const SizedBox(height: 24),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w900,
-                color: AppColors.textPrimary,
-                letterSpacing: -0.5,
-              ),
+            child: Icon(icon, size: 48, color: Colors.grey[200]),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+              color: Colors.black,
             ),
-            const SizedBox(height: 8),
-            Text(
-              sub,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppColors.textSecondary.withOpacity(0.6),
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                height: 1.4,
-              ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            sub,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.grey[500],
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
