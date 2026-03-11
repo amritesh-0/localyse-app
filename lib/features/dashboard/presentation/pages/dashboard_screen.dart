@@ -5,6 +5,8 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../auth/data/repositories/auth_repository_impl.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../onboarding/presentation/pages/role_selection_screen.dart';
+import '../pages/earnings_screen.dart';
+import '../pages/planner_screen.dart';
 import '../widgets/influencer_home_view.dart';
 import '../widgets/my_ads_view.dart';
 import '../widgets/influencer_profile_view.dart';
@@ -26,25 +28,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // If not an influencer, show the legacy layout or appropriate business layout
     if (widget.role != AppUserRole.influencer) {
       return _buildLegacyDashboard(context);
     }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
-      extendBody: true, // Allows content to be visible behind the floating nav
+      extendBody: true,
       body: Stack(
         children: [
           SafeArea(
             bottom: false,
             child: IndexedStack(
               index: _currentIndex,
-              children: [
+              children: const [
                 InfluencerHomeView(),
                 MyAdsView(),
-                Center(child: Text('Influencer Stats (Coming Soon)')),
-                InfluencerProfileView(),
+                EarningsScreen(),
+                PlannerScreen(),
               ],
             ),
           ),
@@ -63,13 +64,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       height: 76,
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A), // Sleek matte black
+        color: Colors.white,
         borderRadius: BorderRadius.circular(38),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.4),
+            color: Colors.black.withOpacity(0.12),
             blurRadius: 30,
             offset: const Offset(0, 12),
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -79,8 +85,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           _buildNavItem(0, Icons.explore_rounded, 'Discover'),
           _buildNavItem(1, Icons.campaign_rounded, 'My Ads'),
-          _buildNavItem(2, Icons.bar_chart_rounded, 'Stats'),
-          _buildNavItem(3, Icons.person_rounded, 'Profile'),
+          _buildNavItem(2, Icons.account_balance_wallet_rounded, 'Earnings'),
+          _buildNavItem(3, Icons.calendar_today_rounded, 'Planner'),
         ],
       ),
     );
@@ -96,7 +102,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         curve: Curves.easeOutCubic,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white.withOpacity(0.08) : Colors.transparent,
+          color: isSelected ? const Color(0xFF1A1A1A) : Colors.transparent,
           borderRadius: BorderRadius.circular(25),
         ),
         child: Column(
@@ -104,14 +110,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Icon(
               icon,
-              color: isSelected ? Colors.white : Colors.white.withOpacity(0.4),
+              color: isSelected ? Colors.white : Colors.grey[400],
               size: 24,
             ),
             const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.white : Colors.white.withOpacity(0.4),
+                color: isSelected ? Colors.white : Colors.grey[400],
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                 letterSpacing: 0.1,

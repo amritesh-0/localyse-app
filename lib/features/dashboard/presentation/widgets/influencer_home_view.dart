@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/models/influencer_models.dart';
 import '../pages/ad_details_screen.dart';
+import '../pages/notifications_screen.dart';
+import '../pages/chat_list_screen.dart';
+import 'influencer_profile_view.dart';
 import '../../data/services/campaign_service.dart';
 
 class InfluencerHomeView extends StatefulWidget {
@@ -99,21 +102,34 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
             children: [
               Row(
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withOpacity(0.2),
-                          blurRadius: 15,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
+                  GestureDetector(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => InfluencerProfileView()),
                     ),
-                    child: const CircleAvatar(
-                      radius: 26,
-                      backgroundImage: NetworkImage('https://api.dicebear.com/7.x/avataaars/png?seed=Steffany'),
-                      backgroundColor: Colors.white,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withOpacity(0.2),
+                            blurRadius: 15,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: AppColors.primary, width: 2.5),
+                        ),
+                        child: const CircleAvatar(
+                          radius: 24,
+                          backgroundImage: NetworkImage('https://api.dicebear.com/7.x/avataaars/png?seed=Steffany'),
+                          backgroundColor: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -142,22 +158,42 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
                   ),
                 ],
               ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+              Row(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                      ],
                     ),
-                  ],
-                ),
-                child: IconButton(
-                  icon: const Icon(Icons.notifications_none_rounded, color: Colors.black87),
-                  onPressed: () {},
-                ),
+                    child: IconButton(
+                      icon: const Icon(Icons.notifications_none_rounded, color: Colors.black, size: 26),
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                      ],
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.chat_bubble_outline_rounded, color: Colors.black, size: 22),
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => ChatListScreen()),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

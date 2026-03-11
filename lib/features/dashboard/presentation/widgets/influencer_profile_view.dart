@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../pages/personal_info_screen.dart';
+import '../pages/payout_methods_screen.dart';
+import '../pages/earning_history_screen.dart';
+import '../pages/notifications_settings_screen.dart';
+import '../pages/help_center_screen.dart';
+import '../pages/terms_privacy_screen.dart';
 
 class InfluencerProfileView extends StatelessWidget {
   const InfluencerProfileView({super.key});
@@ -33,10 +39,14 @@ class InfluencerProfileView extends StatelessWidget {
                     title: 'ACCOUNT SETTINGS',
                     child: Column(
                       children: [
-                        _buildMenuTile(Icons.person_rounded, 'Personal Information', 'Edit bio and contact info'),
-                        _buildMenuTile(Icons.payments_rounded, 'Payout Methods', 'Manage bank accounts'),
-                        _buildMenuTile(Icons.history_rounded, 'Earning History', 'View past transactions'),
-                        _buildMenuTile(Icons.notifications_rounded, 'Notifications', 'Customize alerts'),
+                        _buildMenuTile(Icons.person_rounded, 'Personal Information', 'Edit bio and contact info',
+                            () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PersonalInfoScreen()))),
+                        _buildMenuTile(Icons.payments_rounded, 'Payout Methods', 'Manage bank accounts',
+                            () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PayoutMethodsScreen()))),
+                        _buildMenuTile(Icons.history_rounded, 'Earning History', 'View past transactions',
+                            () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EarningHistoryScreen()))),
+                        _buildMenuTile(Icons.notifications_rounded, 'Notifications', 'Customize alerts',
+                            () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsSettingsScreen()))),
                       ],
                     ),
                   ),
@@ -45,8 +55,10 @@ class InfluencerProfileView extends StatelessWidget {
                     title: 'SUPPORT',
                     child: Column(
                       children: [
-                        _buildMenuTile(Icons.help_center_rounded, 'Help Center', 'FAQs and contact info'),
-                        _buildMenuTile(Icons.shield_rounded, 'Terms & Privacy', 'Legal information'),
+                        _buildMenuTile(Icons.help_center_rounded, 'Help Center', 'FAQs and contact info',
+                            () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HelpCenterScreen()))),
+                        _buildMenuTile(Icons.shield_rounded, 'Terms & Privacy', 'Legal information',
+                            () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TermsPrivacyScreen()))),
                       ],
                     ),
                   ),
@@ -63,32 +75,37 @@ class InfluencerProfileView extends StatelessWidget {
   }
 
   Widget _buildHeroHeader(BuildContext context) {
-    return Container(
-      width: double.infinity,
+    return Padding(
       padding: const EdgeInsets.fromLTRB(24, 60, 24, 20),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(40),
-          bottomRight: Radius.circular(40),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
       child: Column(
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                  ],
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: Colors.black),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+              const SizedBox(width: 44), // Spacer to balance or add more actions
+            ],
+          ),
+          const SizedBox(height: 12),
           Stack(
             alignment: Alignment.bottomRight,
             children: [
               Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.primaryLight, width: 3),
+                  border: Border.all(color: AppColors.primary, width: 3),
                   boxShadow: [
                     BoxShadow(
                       color: AppColors.primary.withOpacity(0.1),
@@ -113,39 +130,7 @@ class InfluencerProfileView extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          const Text(
-            'Steffany Johnson',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.black, letterSpacing: -0.5),
-          ),
-          const SizedBox(height: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Text(
-              'ELITE INFLUENCER',
-              style: TextStyle(
-                color: AppColors.primary,
-                fontSize: 9,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.0,
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'Creating high-energy travel and lifestyle content. Passionate about sustainable brands and tech.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              height: 1.5,
-            ),
-          ),
+          const SizedBox(height: 12),
         ],
       ),
     );
@@ -304,11 +289,11 @@ class InfluencerProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuTile(IconData icon, String title, String subtitle) {
+  Widget _buildMenuTile(IconData icon, String title, String subtitle, VoidCallback onTap) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () {},
+        onTap: onTap,
         borderRadius: BorderRadius.circular(22),
         child: Padding(
           padding: const EdgeInsets.all(16),
