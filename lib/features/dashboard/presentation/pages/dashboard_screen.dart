@@ -7,6 +7,7 @@ import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../onboarding/presentation/pages/role_selection_screen.dart';
 import '../widgets/influencer_home_view.dart';
 import '../widgets/my_ads_view.dart';
+import '../widgets/influencer_profile_view.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({
@@ -43,7 +44,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 InfluencerHomeView(),
                 MyAdsView(),
                 Center(child: Text('Influencer Stats (Coming Soon)')),
-                Center(child: Text('Profile Settings')),
+                InfluencerProfileView(),
               ],
             ),
           ),

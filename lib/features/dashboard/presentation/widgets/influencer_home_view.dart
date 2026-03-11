@@ -42,278 +42,356 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
   Widget build(BuildContext context) {
     final filteredAds = _campaignService.getNearbyCampaigns(selectedLocation);
 
-    return Column(
-      children: [
-        _buildPremiumHeader(),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-            physics: const BouncingScrollPhysics(),
-            children: [
-              const SizedBox(height: 24),
-              _buildGlassStats(),
-              const SizedBox(height: 32),
-              _buildAdCategories(),
-              const SizedBox(height: 24),
-              _buildSectionHeader('Campaigns Near You'),
-              const SizedBox(height: 16),
-              if (filteredAds.isEmpty)
-                _buildEmptyState()
-              else
-                ...filteredAds.map((ad) => _buildPremiumAdCard(ad)),
-            ],
-          ),
+    return Scaffold(
+      backgroundColor: Colors.grey[50], // Very soft off-white background
+      body: SafeArea(
+        bottom: false,
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(child: _buildSeamlessHeader()),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 24, bottom: 32),
+                child: _buildPremiumStatsRow(),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: _buildCategoryChips(),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 32, 24, 20),
+                child: _buildSectionHeader('Campaigns for You'),
+              ),
+            ),
+            if (filteredAds.isEmpty)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: _buildEmptyState(),
+                ),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 120), // Bottom padding for FAB/Navbar
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => _buildUltraPremiumAdCard(filteredAds[index]),
+                    childCount: filteredAds.length,
+                  ),
+                ),
+              ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildPremiumHeader() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.primary, width: 2),
-                  ),
-                  child: const CircleAvatar(
-                    radius: 24,
-                    backgroundImage: NetworkImage('https://api.dicebear.com/7.x/avataaars/png?seed=Steffany'),
-                    backgroundColor: AppColors.primaryLight,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Good Morning',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.textSecondary.withOpacity(0.8),
-                        fontWeight: FontWeight.w500,
-                      ),
+  Widget _buildSeamlessHeader() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withOpacity(0.2),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
                     ),
-                    const Text(
-                      'Steffany',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
-                        letterSpacing: -0.5,
+                    child: const CircleAvatar(
+                      radius: 26,
+                      backgroundImage: NetworkImage('https://api.dicebear.com/7.x/avataaars/png?seed=Steffany'),
+                      backgroundColor: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Welcome back,',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey[500],
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
                       ),
+                      const Text(
+                        'Steffany ✨',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.black,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-                const Spacer(),
-                _buildIconButton(Icons.notifications_none_rounded, () {}),
-                const SizedBox(width: 8),
-                _buildIconButton(Icons.calendar_today_outlined, () {}),
-              ],
-            ),
-            const SizedBox(height: 24),
-            _buildSleekLocationSelector(),
-          ],
-        ),
+                child: IconButton(
+                  icon: const Icon(Icons.notifications_none_rounded, color: Colors.black87),
+                  onPressed: () {},
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 28),
+          _buildFloatingLocationPill(),
+        ],
       ),
     );
   }
 
-  Widget _buildIconButton(IconData icon, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Icon(icon, color: AppColors.textPrimary, size: 22),
-      ),
-    );
-  }
-
-  Widget _buildSleekLocationSelector() {
+  Widget _buildFloatingLocationPill() {
     return InkWell(
       onTap: () => _showLocationSearch(),
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(30),
       child: Container(
+        width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         decoration: BoxDecoration(
-          color: AppColors.primary.withOpacity(0.08),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.primary.withOpacity(0.1)),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
         ),
         child: Row(
           children: [
-            const Icon(Icons.location_on_rounded, color: AppColors.primary, size: 18),
-            const SizedBox(width: 10),
-            Text(
-              selectedLocation,
-              style: const TextStyle(
-                fontWeight: FontWeight.w700,
-                color: AppColors.primary,
-                fontSize: 15,
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.search_rounded, color: AppColors.primary, size: 16),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Search campaigns in',
+                    style: TextStyle(
+                      color: Colors.grey[500],
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    selectedLocation,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      color: Colors.black87,
+                      fontSize: 15,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const Spacer(),
-            Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.primary.withOpacity(0.6)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGlassStats() {
-    return Container(
-      height: 120,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(32),
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primary.withOpacity(0.9),
-            const Color(0xFF6366F1).withOpacity(0.9),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          // Decorative circles
-          Positioned(
-            right: -20,
-            top: -20,
-            child: CircleAvatar(radius: 60, backgroundColor: Colors.white.withOpacity(0.1)),
-          ),
-          Positioned(
-            left: 20,
-            bottom: -10,
-            child: CircleAvatar(radius: 30, backgroundColor: Colors.white.withOpacity(0.05)),
-          ),
-          // Content
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildModernStat('reach', '45.2k', 'Total Reach'),
-                _buildVerticalDivider(),
-                _buildModernStat('earnings', '\$1,240', 'Earnings'),
-                _buildVerticalDivider(),
-                _buildModernStat('rating', '4.9', 'Rating'),
-              ],
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.tune_rounded, color: Colors.black87, size: 16),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildModernStat(String type, String value, String label) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -0.5,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label.toUpperCase(),
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.7),
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.2,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildVerticalDivider() {
-    return Container(
-      height: 30,
-      width: 1,
-      color: Colors.white.withOpacity(0.2),
-    );
-  }
-
-  Widget _buildAdCategories() {
+  Widget _buildPremiumStatsRow() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
-        children: categories.map((cat) {
+        children: [
+          _buildStatCard(
+            title: 'Earnings',
+            value: '\$1,240',
+            subtitle: 'This Month',
+            icon: Icons.account_balance_wallet_rounded,
+            gradientColors: [AppColors.primary, AppColors.accent],
+            isPrimary: true,
+          ),
+          const SizedBox(width: 16),
+          _buildStatCard(
+            title: 'Reach',
+            value: '45.2K',
+            subtitle: 'Avg. Views',
+            icon: Icons.trending_up_rounded,
+            gradientColors: [Colors.white, Colors.white],
+            isPrimary: false,
+          ),
+          const SizedBox(width: 16),
+          _buildStatCard(
+            title: 'Rating',
+            value: '4.9',
+            subtitle: '12 Reviews',
+            icon: Icons.star_rounded,
+            gradientColors: [Colors.white, Colors.white],
+            isPrimary: false,
+            iconColor: Colors.amber,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatCard({
+    required String title,
+    required String value,
+    required String subtitle,
+    required IconData icon,
+    required List<Color> gradientColors,
+    required bool isPrimary,
+    Color? iconColor,
+  }) {
+    return Container(
+      width: 160,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: gradientColors,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(32),
+        boxShadow: [
+          if (isPrimary)
+            BoxShadow(
+              color: AppColors.primary.withOpacity(0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            )
+          else
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+        ],
+        border: isPrimary ? null : Border.all(color: Colors.white, width: 2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: isPrimary ? Colors.white.withOpacity(0.2) : Colors.grey[50],
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: isPrimary ? Colors.white : (iconColor ?? Colors.black),
+              size: 20,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w900,
+              color: isPrimary ? Colors.white : Colors.black,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: isPrimary ? Colors.white.withOpacity(0.8) : Colors.grey[500],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryChips() {
+    return SizedBox(
+      height: 48,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        itemCount: categories.length,
+        itemBuilder: (context, index) {
+          final cat = categories[index];
           final isSelected = selectedCategory == cat;
           return Padding(
             padding: const EdgeInsets.only(right: 12),
-            child: InkWell(
+            child: GestureDetector(
               onTap: () => setState(() => selectedCategory = cat),
-              borderRadius: BorderRadius.circular(16),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
                 decoration: BoxDecoration(
                   color: isSelected ? Colors.black : Colors.white,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: isSelected ? Colors.black : (Colors.grey[200] ?? Colors.grey),
+                    color: isSelected ? Colors.black : Colors.grey[200]!,
                   ),
                   boxShadow: isSelected
                       ? [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          )
+                          BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 10, offset: const Offset(0, 4))
                         ]
                       : [],
                 ),
+                alignment: Alignment.center,
                 child: Text(
                   cat,
                   style: TextStyle(
-                    color: isSelected ? Colors.white : AppColors.textSecondary,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                    color: isSelected ? Colors.white : Colors.grey[600],
+                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                     fontSize: 14,
                   ),
                 ),
               ),
             ),
           );
-        }).toList(),
+        },
       ),
     );
   }
@@ -321,52 +399,47 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
   Widget _buildSectionHeader(String title) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
       children: [
         Text(
           title,
           style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-            color: AppColors.textPrimary,
+            fontSize: 22,
+            fontWeight: FontWeight.w900,
+            color: Colors.black,
             letterSpacing: -0.5,
           ),
         ),
-        TextButton(
-          onPressed: () {},
-          style: TextButton.styleFrom(
-            minimumSize: Size.zero,
-            padding: EdgeInsets.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-          child: const Text(
-            'See all',
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color: AppColors.primary,
-            ),
+        Text(
+          'See All',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: AppColors.primary,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildPremiumAdCard(AdCampaign ad) {
+  Widget _buildUltraPremiumAdCard(AdCampaign ad) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
+      margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(40), // Massive rounded corners
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+            color: Colors.black.withOpacity(0.04), // Softer, wider shadow
+            blurRadius: 30,
+            offset: const Offset(0, 15),
           ),
         ],
       ),
       child: Material(
         color: Colors.transparent,
+        borderRadius: BorderRadius.circular(40),
         child: InkWell(
           onTap: () {
             Navigator.push(
@@ -376,27 +449,28 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
               ),
             );
           },
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(40),
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      height: 56,
-                      width: 56,
+                      height: 64, // Larger logo area
+                      width: 64,
                       decoration: BoxDecoration(
                         color: AppColors.primaryLight,
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                       child: Center(
                         child: Text(
                           ad.brandLogo,
                           style: const TextStyle(
                             color: AppColors.primary,
-                            fontSize: 22,
+                            fontSize: 28,
                             fontWeight: FontWeight.w900,
                           ),
                         ),
@@ -410,25 +484,27 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
                           Row(
                             children: [
                               Text(
-                                ad.brandName,
-                                style: TextStyle(
-                                  color: AppColors.primary.withOpacity(0.8),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.5,
+                                ad.brandName.toUpperCase(),
+                                style: const TextStyle(
+                                  color: AppColors.primary,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 1.5,
                                 ),
                               ),
                               const SizedBox(width: 6),
-                              Icon(Icons.verified_rounded, size: 14, color: AppColors.primary.withOpacity(0.8)),
+                              const Icon(Icons.verified_rounded, size: 12, color: AppColors.primary),
                             ],
                           ),
+                          const SizedBox(height: 4),
                           Text(
                             ad.title,
                             style: const TextStyle(
                               fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.black,
                               height: 1.2,
+                              letterSpacing: -0.2,
                             ),
                           ),
                         ],
@@ -436,58 +512,61 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 Text(
                   ad.description,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: AppColors.textSecondary.withOpacity(0.8),
+                    color: Colors.grey[600],
                     fontSize: 14,
-                    height: 1.4,
+                    height: 1.5,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
+                // Payout and Action Button Row
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            shape: BoxShape.circle,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.grey[100]!),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.payments_rounded, size: 16, color: Colors.black),
+                          const SizedBox(width: 8),
+                          Text(
+                            '\$${ad.payout.toStringAsFixed(0)}',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.black,
+                            ),
                           ),
-                          child: const Icon(Icons.payments_rounded, size: 16, color: Colors.black87),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '\$${ad.payout.toStringAsFixed(0)}',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size(120, 48),
-                        shape: RoundedRectangleBorder(
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.black, // Sleek black apply button
                           borderRadius: BorderRadius.circular(24),
                         ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'Apply Now',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
+                        child: const Center(
+                          child: Text(
+                            'View Details',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -503,46 +582,42 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
 
   Widget _buildEmptyState() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 20),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: Colors.grey[100] ?? Colors.grey),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(40),
+        border: Border.all(color: Colors.grey[100]!),
       ),
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Colors.grey[50],
               shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
-                  blurRadius: 20,
-                )
-              ],
             ),
-            child: Icon(Icons.campaign_outlined, size: 48, color: AppColors.textHint.withOpacity(0.5)),
+            child: Icon(Icons.location_off_rounded, size: 48, color: Colors.grey[400]),
           ),
           const SizedBox(height: 24),
           const Text(
-            'Nothing in ${'your area'}',
+            'No Campaigns Found',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w900,
+              color: Colors.black,
+              letterSpacing: -0.5,
             ),
           ),
           const SizedBox(height: 12),
-          const Text(
-            'We couldn\'t find any campaigns here, but new ones pop up every hour. Try checking nearby cities!',
+          Text(
+            'We couldn\'t find any campaigns in ${selectedLocation.split(',')[0]}. Try expanding your search area!',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 15,
+              color: Colors.grey[500],
+              fontSize: 14,
               height: 1.5,
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 32),
@@ -550,12 +625,14 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
             onPressed: () => _showLocationSearch(),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
               minimumSize: const Size(200, 56),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(28),
               ),
+              elevation: 0,
             ),
-            child: const Text('Change Location'),
+            child: const Text('Change Location', style: TextStyle(fontWeight: FontWeight.w800)),
           ),
         ],
       ),
@@ -592,25 +669,38 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: -0.5),
                 ),
                 const Spacer(),
-                _buildIconButton(Icons.close_rounded, () => Navigator.pop(context)),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.close_rounded, color: Colors.black, size: 20),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 24),
             TextField(
               decoration: InputDecoration(
                 hintText: 'Search for a city...',
-                hintStyle: TextStyle(color: Colors.grey[400], fontWeight: FontWeight.w500),
-                prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primary),
+                hintStyle: TextStyle(color: Colors.grey[400], fontWeight: FontWeight.w600),
+                prefixIcon: const Icon(Icons.search_rounded, color: Colors.black),
                 filled: true,
                 fillColor: Colors.grey[50],
                 contentPadding: const EdgeInsets.symmetric(vertical: 20),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(24),
                   borderSide: BorderSide.none,
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(24),
                   borderSide: BorderSide(color: Colors.grey[100] ?? Colors.grey),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(24),
+                  borderSide: const BorderSide(color: AppColors.primary, width: 2),
                 ),
               ),
             ),
@@ -624,18 +714,18 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      tileColor: isSelected ? AppColors.primaryLight : Colors.transparent,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                      tileColor: isSelected ? Colors.black : Colors.white,
                       leading: Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: isSelected ? AppColors.primary : Colors.grey[100],
+                          color: isSelected ? Colors.white.withOpacity(0.2) : Colors.grey[100],
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           Icons.location_on_rounded,
-                          color: isSelected ? Colors.white : AppColors.textSecondary,
+                          color: isSelected ? Colors.white : Colors.black,
                           size: 20,
                         ),
                       ),
@@ -644,12 +734,12 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                          color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                          color: isSelected ? Colors.white : Colors.black,
                         ),
                       ),
                       trailing: isSelected
-                          ? const Icon(Icons.check_circle_rounded, color: AppColors.primary)
-                          : const Icon(Icons.chevron_right_rounded),
+                          ? const Icon(Icons.check_circle_rounded, color: Colors.white)
+                          : const Icon(Icons.chevron_right_rounded, color: Colors.grey),
                       onTap: () {
                         setState(() {
                           selectedLocation = locations[index];
