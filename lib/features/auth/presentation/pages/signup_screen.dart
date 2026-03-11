@@ -7,6 +7,7 @@ import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../widgets/header_clipper.dart';
 import 'login_screen.dart';
+import '../../../onboarding/presentation/pages/role_selection_screen.dart';
 import '../../../../core/utils/feedback_utils.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -33,6 +34,15 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Future<void> _handleSignup() async {
+    if (widget.role == null || widget.role!.trim().isEmpty) {
+      AppFeedback.error(context, 'Please select whether you are a business or influencer first.');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const RoleSelectionScreen()),
+      );
+      return;
+    }
+
     if (_nameController.text.isEmpty || _emailController.text.isEmpty || _passwordController.text.isEmpty) {
       AppFeedback.error(context, 'Please fill in all fields');
       return;
@@ -48,19 +58,35 @@ class _SignupScreenState extends State<SignupScreen> {
         _nameController.text.trim(),
         role.value,
       );
-      if (mounted) {
-        AppFeedback.success(context, 'Registration Successful');
+      if (!mounted) return;
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => buildPostAuthDestination(
-              role: role,
-              isOnboarded: false,
-            ),
+      final Map<String, dynamic> fallbackUserData = {
+        'role': role.value,
+        'isOnboarded': false,
+        'businessProfileCompleted': false,
+        'businessVerificationCompleted': false,
+        'businessVerificationStatus': role == AppUserRole.business ? 'pending_submission' : null,
+        'onboardingStep': role == AppUserRole.business ? 'business_profile' : 'profile',
+      };
+
+      final user = _authRepository.currentUser;
+      final userData =
+          user == null ? fallbackUserData : (await _authRepository.getUserData(user.uid)) ?? fallbackUserData;
+
+      if (!mounted) return;
+
+      AppFeedback.success(context, 'Registration Successful');
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => buildPostAuthDestination(
+            role: role,
+            isOnboarded: userData['isOnboarded'] ?? false,
+            userData: userData,
           ),
-        );
-      }
+        ),
+      );
     } on FirebaseAuthException catch (e) {
       if (mounted) {
         AppFeedback.error(context, e.message ?? 'Registration failed');
@@ -71,14 +97,24 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Future<void> _handleGoogleSignIn() async {
+    if (widget.role == null || widget.role!.trim().isEmpty) {
+      AppFeedback.error(context, 'Please select whether you are a business or influencer first.');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const RoleSelectionScreen()),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
     try {
-      await _authRepository.signInWithGoogle();
+      final AppUserRole role = appUserRoleFromValue(widget.role);
+      await _authRepository.signInWithGoogle(role: role.value);
       if (mounted) {
         final user = _authRepository.currentUser;
         final userData =
             user == null ? null : await _authRepository.getUserData(user.uid);
-        final AppUserRole role =
+        final AppUserRole resolvedRole =
             appUserRoleFromValue(userData?['role']?.toString());
         final bool isOnboarded = userData?['isOnboarded'] ?? false;
 
@@ -92,8 +128,9 @@ class _SignupScreenState extends State<SignupScreen> {
           context,
           MaterialPageRoute(
             builder: (context) => buildPostAuthDestination(
-              role: role,
+              role: resolvedRole,
               isOnboarded: isOnboarded,
+              userData: userData,
             ),
           ),
         );

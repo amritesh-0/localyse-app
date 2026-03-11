@@ -7,7 +7,7 @@ import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../widgets/header_clipper.dart';
 import 'forgot_password_screen.dart';
-import 'signup_screen.dart';
+import '../../../onboarding/presentation/pages/role_selection_screen.dart';
 import '../../../../core/utils/feedback_utils.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -61,6 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 builder: (context) => buildPostAuthDestination(
                   role: role,
                   isOnboarded: isOnboarded,
+                  userData: userData,
                 ),
               ),
             );
@@ -100,6 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
             builder: (context) => buildPostAuthDestination(
               role: role,
               isOnboarded: isOnboarded,
+              userData: userData,
             ),
           ),
         );
@@ -280,7 +282,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             onTap: () {
                               Navigator.pushReplacement(
                                 context,
-                                MaterialPageRoute(builder: (context) => const SignupScreen()),
+                                MaterialPageRoute(builder: (context) => const RoleSelectionScreen()),
                               );
                             },
                             child: const Text(

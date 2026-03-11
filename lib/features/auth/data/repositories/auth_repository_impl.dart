@@ -14,6 +14,26 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   User? get currentUser => _auth.currentUser;
 
+  Map<String, dynamic> _buildInitialUserData({
+    required String email,
+    required String role,
+    String? fullName,
+  }) {
+    final bool isBusiness = role == 'business';
+
+    return {
+      'fullName': fullName,
+      'email': email,
+      'createdAt': FieldValue.serverTimestamp(),
+      'role': role,
+      'isOnboarded': false,
+      'businessProfileCompleted': !isBusiness,
+      'businessVerificationCompleted': !isBusiness,
+      'businessVerificationStatus': isBusiness ? 'pending_submission' : null,
+      'onboardingStep': isBusiness ? 'business_profile' : 'profile',
+    };
+  }
+
   @override
   Future<UserCredential> signInWithEmail(String email, String password) async {
     try {
@@ -39,13 +59,14 @@ class AuthRepositoryImpl implements AuthRepository {
       
       // Save user data to Firestore
       if (userCredential.user != null) {
-        await _firestore.collection('users').doc(userCredential.user!.uid).set({
-          'fullName': fullName,
-          'email': email,
-          'createdAt': FieldValue.serverTimestamp(),
-          'role': role,
-          'isOnboarded': false,
-        });
+        await _firestore
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .set(_buildInitialUserData(
+          email: email,
+          fullName: fullName,
+          role: role,
+        ));
       }
       
       return userCredential;
@@ -55,7 +76,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<UserCredential> signInWithGoogle() async {
+  Future<UserCredential> signInWithGoogle({String? role}) async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) throw FirebaseAuthException(code: 'ERROR_ABORTED_BY_USER', message: 'Sign in aborted by user');
@@ -70,13 +91,15 @@ class AuthRepositoryImpl implements AuthRepository {
       
       // Save user data to Firestore if it's a new user
       if (userCredential.additionalUserInfo?.isNewUser == true && userCredential.user != null) {
-        await _firestore.collection('users').doc(userCredential.user!.uid).set({
-          'fullName': userCredential.user!.displayName,
-          'email': userCredential.user!.email,
-          'createdAt': FieldValue.serverTimestamp(),
-          'role': 'user',
-          'isOnboarded': false,
-        });
+        final selectedRole = (role?.trim().isNotEmpty ?? false) ? role!.trim() : 'user';
+        await _firestore
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .set(_buildInitialUserData(
+          email: userCredential.user!.email ?? '',
+          fullName: userCredential.user!.displayName,
+          role: selectedRole,
+        ));
       }
       
       return userCredential;

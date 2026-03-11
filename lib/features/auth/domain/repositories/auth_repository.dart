@@ -5,7 +5,7 @@ abstract class AuthRepository {
   User? get currentUser;
   Future<UserCredential> signInWithEmail(String email, String password);
   Future<UserCredential> signUpWithEmail(String email, String password, String fullName, String role);
-  Future<UserCredential> signInWithGoogle();
+  Future<UserCredential> signInWithGoogle({String? role});
   Future<void> signOut();
   Future<String?> getCurrentUserIdToken({bool forceRefresh = false});
   Future<void> sendPasswordResetEmail(String email);

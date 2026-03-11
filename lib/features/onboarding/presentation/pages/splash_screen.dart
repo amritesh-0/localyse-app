@@ -40,6 +40,7 @@ class _SplashScreenState extends State<SplashScreen> {
             builder: (context) => buildPostAuthDestination(
               role: role,
               isOnboarded: isOnboarded,
+              userData: userData,
             ),
           ),
         );

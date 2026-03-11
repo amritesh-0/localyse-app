@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'verify_business_screen.dart';
 import '../../../../core/auth/app_user_role.dart';
-import '../../../../core/navigation/auth_flow_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../auth/presentation/widgets/header_clipper.dart';
 import '../../../auth/data/repositories/auth_repository_impl.dart';
@@ -40,15 +40,23 @@ class _BusinessInfoScreenState extends State<BusinessInfoScreen> {
     super.initState();
     _filteredCities = _cities;
     _citySearchController.addListener(_onSearchChanged);
+    _brandNameController.addListener(_refreshForm);
   }
 
   @override
   void dispose() {
+    _brandNameController.removeListener(_refreshForm);
     _brandNameController.dispose();
     _websiteController.dispose();
     _citySearchController.removeListener(_onSearchChanged);
     _citySearchController.dispose();
     super.dispose();
+  }
+
+  void _refreshForm() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _onSearchChanged() {
@@ -60,28 +68,35 @@ class _BusinessInfoScreenState extends State<BusinessInfoScreen> {
   }
 
   Future<void> _handleCompleteOnboarding() async {
+    if (_isLoading) return;
     setState(() => _isLoading = true);
     try {
       final AuthRepository authRepository = AuthRepositoryImpl();
       final user = authRepository.currentUser;
-      if (user != null) {
-        await authRepository.updateUserData(user.uid, {
-          'role': AppUserRole.business.value,
-          'brandName': _brandNameController.text.trim(),
-          'website': _websiteController.text.trim(),
-          'industry': _selectedIndustry,
-          'city': _selectedCity,
-        });
-        await authRepository.completeOnboarding(user.uid);
-        if (mounted) {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-              builder: (context) => buildDashboardForRole(AppUserRole.business),
-            ),
-            (route) => false,
-          );
-        }
+      if (user == null) {
+        throw StateError('No authenticated user found.');
+      }
+
+      await authRepository.updateUserData(user.uid, {
+        'role': AppUserRole.business.value,
+        'brandName': _brandNameController.text.trim(),
+        'website': _websiteController.text.trim(),
+        'industry': _selectedIndustry,
+        'city': _selectedCity,
+        'businessProfileCompleted': true,
+        'businessVerificationCompleted': false,
+        'businessVerificationStatus': 'pending_submission',
+        'isOnboarded': false,
+        'onboardingStep': 'business_verification',
+      });
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const VerifyBusinessScreen(),
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -94,7 +109,7 @@ class _BusinessInfoScreenState extends State<BusinessInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isFormValid = _brandNameController.text.isNotEmpty && 
+    final bool isFormValid = _brandNameController.text.trim().isNotEmpty && 
                               _selectedIndustry != null && 
                               _selectedCity != null;
 
