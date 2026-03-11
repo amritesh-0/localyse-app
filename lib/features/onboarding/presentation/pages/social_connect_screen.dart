@@ -193,6 +193,17 @@ class _SocialConnectScreenState extends State<SocialConnectScreen>
       return;
     }
 
+    final isExpectedCallback = switch (result.provider) {
+      SocialProvider.instagram =>
+        _instagramStatus == SocialConnectionStatus.connecting,
+      SocialProvider.youtube =>
+        _youtubeStatus == SocialConnectionStatus.connecting,
+    };
+
+    if (!isExpectedCallback) {
+      return;
+    }
+
     final user = _authRepository.currentUser;
     if (user == null) {
       AppFeedback.error(context, 'Your session expired. Please sign in again.');
@@ -322,6 +333,47 @@ class _SocialConnectScreenState extends State<SocialConnectScreen>
     } catch (e) {
       if (mounted) {
         AppFeedback.error(context, 'Unable to finish onboarding: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+
+  Future<void> _handleConnectLater() async {
+    setState(() => _isSaving = true);
+    try {
+      final user = _authRepository.currentUser;
+      if (user != null) {
+        await _authRepository.updateUserData(user.uid, {
+          'role': AppUserRole.influencer.value,
+          'socialConnectionsCompleted': false,
+          'instagramConnected': false,
+          'youtubeConnected': false,
+          'socialConnections': {
+            'instagram': {
+              'connected': false,
+            },
+            'youtube': {
+              'connected': false,
+            },
+          },
+        });
+        await _authRepository.completeOnboarding(user.uid);
+      }
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => buildDashboardForRole(AppUserRole.influencer),
+          ),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        AppFeedback.error(context, 'Unable to save social connection later: $e');
       }
     } finally {
       if (mounted) {
@@ -569,9 +621,9 @@ class _SocialConnectScreenState extends State<SocialConnectScreen>
                       const SizedBox(height: 16),
                       Center(
                         child: TextButton(
-                          onPressed: (_isSaving || !_isAnyConnected)
+                          onPressed: _isSaving
                               ? null
-                              : _handleFinish,
+                              : _handleConnectLater,
                           child: const Text(
                             'Continue collab and connect later',
                             style: TextStyle(
