@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../../auth/data/repositories/auth_repository_impl.dart';
+import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../onboarding/presentation/pages/role_selection_screen.dart';
 import '../pages/personal_info_screen.dart';
 import '../pages/payout_methods_screen.dart';
 import '../pages/earning_history_screen.dart';
@@ -63,7 +66,7 @@ class InfluencerProfileView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  _buildLogoutButton(),
+                  _buildLogoutButton(context),
                   const SizedBox(height: 120), // Padding for bottom navbar
                 ],
               ),
@@ -331,7 +334,9 @@ class InfluencerProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildLogoutButton() {
+  Widget _buildLogoutButton(BuildContext context) {
+    final AuthRepository authRepository = AuthRepositoryImpl();
+
     return Container(
       width: double.infinity,
       height: 64,
@@ -342,7 +347,22 @@ class InfluencerProfileView extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {},
+          onTap: () async {
+            try {
+              await authRepository.signOut();
+              if (!context.mounted) return;
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const RoleSelectionScreen()),
+                (route) => false,
+              );
+            } catch (_) {
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Unable to log out. Please try again.')),
+              );
+            }
+          },
           borderRadius: BorderRadius.circular(24),
           child: const Center(
             child: Text(
