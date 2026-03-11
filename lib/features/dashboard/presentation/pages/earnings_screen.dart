@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_theme.dart';
+
 
 class EarningsScreen extends StatelessWidget {
   const EarningsScreen({super.key});
@@ -51,66 +53,70 @@ class EarningsScreen extends StatelessWidget {
   Widget _buildWalletHeader(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(24, 80, 24, 48),
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(48),
-          bottomRight: Radius.circular(48),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            blurRadius: 40,
-            offset: const Offset(0, 20),
+      padding: const EdgeInsets.only(top: 80, bottom: 20),
+      color: Colors.white,
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 32),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(60),
+            border: Border.all(color: AppColors.primary, width: 3),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withOpacity(0.15),
+                blurRadius: 30,
+                offset: const Offset(0, 15),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 14),
-                SizedBox(width: 8),
-                Text(
-                  'TOTAL BALANCE',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white70,
-                    letterSpacing: 1.2,
-                  ),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-              ],
-            ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.account_balance_wallet_rounded, color: AppColors.primary, size: 14),
+                    SizedBox(width: 8),
+                    Text(
+                      'TOTAL BALANCE',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.primary,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                '\$12,450.00',
+                style: TextStyle(
+                  fontSize: 48,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.black,
+                  letterSpacing: -2,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Lifetime Earning Portfolio',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[500],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 24),
-          const Text(
-            '\$12,450.00',
-            style: TextStyle(
-              fontSize: 52,
-              fontWeight: FontWeight.w900,
-              color: Colors.white,
-              letterSpacing: -2,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Lifetime Earning Portfolio',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Colors.white.withOpacity(0.4),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

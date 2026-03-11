@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/models/influencer_models.dart';
@@ -21,15 +22,35 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
   final List<String> categories = ['All', 'Lifestyle', 'Tech', 'Food', 'Fashion', 'Fitness'];
   
   final _campaignService = CampaignService();
+  
+  final PageController _bannerController = PageController();
+  Timer? _bannerTimer;
+  int _currentBannerIndex = 0;
 
   @override
   void initState() {
     super.initState();
     _campaignService.addListener(_handleServiceUpdate);
+    _startBannerTimer();
+  }
+
+  void _startBannerTimer() {
+    _bannerTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (_bannerController.hasClients) {
+        _currentBannerIndex = (_currentBannerIndex + 1) % 3; // Assuming 3 banners
+        _bannerController.animateToPage(
+          _currentBannerIndex,
+          duration: const Duration(milliseconds: 1000),
+          curve: Curves.fastOutSlowIn,
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
+    _bannerTimer?.cancel();
+    _bannerController.dispose();
     _campaignService.removeListener(_handleServiceUpdate);
     super.dispose();
   }
@@ -54,8 +75,8 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
             SliverToBoxAdapter(child: _buildSeamlessHeader()),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.only(top: 24, bottom: 32),
-                child: _buildPremiumStatsRow(),
+                padding: const EdgeInsets.only(top: 24, bottom: 24),
+                child: _buildBannerCarousel(),
               ),
             ),
             SliverToBoxAdapter(
@@ -271,118 +292,139 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
     );
   }
 
-  Widget _buildPremiumStatsRow() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Row(
+  Widget _buildBannerCarousel() {
+    return SizedBox(
+      height: 180,
+      child: PageView(
+        controller: _bannerController,
+        physics: const BouncingScrollPhysics(),
+        onPageChanged: (index) {
+          setState(() {
+            _currentBannerIndex = index;
+          });
+        },
         children: [
-          _buildStatCard(
-            title: 'Earnings',
-            value: '\$1,240',
-            subtitle: 'This Month',
-            icon: Icons.account_balance_wallet_rounded,
-            gradientColors: [AppColors.primary, AppColors.accent],
-            isPrimary: true,
+          _buildPremiumBanner(
+            title: 'Add your\nInstagram profile',
+            subtitle: 'Shows your reach to brands. Secured by META & Google API.',
+            icon: Icons.camera_alt_rounded,
+            colors: [const Color(0xFFFDF2F8), const Color(0xFFF3E8FF)], // Light pink to light purple
+            textColor: Colors.black87,
+            iconColor: const Color(0xFFE1306C).withOpacity(0.05), // Very faint pink
+            tag: 'ACTION REQUIRED',
+            tagColor: const Color(0xFFE1306C), // Pink tag
           ),
-          const SizedBox(width: 16),
-          _buildStatCard(
-            title: 'Reach',
-            value: '45.2K',
-            subtitle: 'Avg. Views',
-            icon: Icons.trending_up_rounded,
-            gradientColors: [Colors.white, Colors.white],
-            isPrimary: false,
-          ),
-          const SizedBox(width: 16),
-          _buildStatCard(
-            title: 'Rating',
-            value: '4.9',
-            subtitle: '12 Reviews',
+          _buildPremiumBanner(
+            title: 'Top Influencer\nRewards Tier',
+            subtitle: 'You are in the top 5% of creators this month! Keep it up.',
             icon: Icons.star_rounded,
-            gradientColors: [Colors.white, Colors.white],
-            isPrimary: false,
-            iconColor: Colors.amber,
+            colors: [const Color(0xFFFEF3C7), const Color(0xFFFEF08A)], // Light Amber to lighter Yellow
+            textColor: Colors.black87,
+            iconColor: const Color(0xFFF59E0B).withOpacity(0.05),
+            tag: 'ACHIEVEMENT',
+            tagColor: const Color(0xFFD97706),
+          ),
+          _buildPremiumBanner(
+            title: 'New Lifestyle\nBrands Added',
+            subtitle: 'Discover exclusive opportunities from premium partners.',
+            icon: Icons.explore_rounded,
+            colors: [const Color(0xFFD1FAE5), const Color(0xFFA7F3D0)], // Light Emerald
+            textColor: Colors.black87,
+            iconColor: const Color(0xFF10B981).withOpacity(0.05),
+            tag: 'DISCOVERY',
+            tagColor: const Color(0xFF059669),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStatCard({
+  Widget _buildPremiumBanner({
     required String title,
-    required String value,
     required String subtitle,
     required IconData icon,
-    required List<Color> gradientColors,
-    required bool isPrimary,
+    required List<Color> colors,
+    required String tag,
+    Color textColor = Colors.white,
     Color? iconColor,
+    Color? tagColor,
   }) {
     return Container(
-      width: 160,
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: gradientColors,
+          colors: colors,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
-          if (isPrimary)
-            BoxShadow(
-              color: AppColors.primary.withOpacity(0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            )
-          else
-            BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-            ),
+          BoxShadow(
+            color: colors[0].withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
         ],
-        border: isPrimary ? null : Border.all(color: Colors.white, width: 2),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: isPrimary ? Colors.white.withOpacity(0.2) : Colors.grey[50],
-              shape: BoxShape.circle,
-            ),
+          // Background Icon watermark
+          Positioned(
+            right: -20,
+            bottom: -20,
             child: Icon(
               icon,
-              color: isPrimary ? Colors.white : (iconColor ?? Colors.black),
-              size: 20,
+              size: 140,
+              color: iconColor ?? Colors.white.withOpacity(0.1),
             ),
           ),
-          const SizedBox(height: 20),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w900,
-              color: isPrimary ? Colors.white : Colors.black,
-              letterSpacing: -0.5,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: isPrimary ? Colors.white.withOpacity(0.8) : Colors.grey[500],
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: tagColor?.withOpacity(0.2) ?? Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  tag,
+                  style: TextStyle(
+                    color: tagColor ?? textColor,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              Text(
+                title,
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  height: 1.1,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  color: textColor.withOpacity(0.8),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
+
 
   Widget _buildCategoryChips() {
     return SizedBox(
