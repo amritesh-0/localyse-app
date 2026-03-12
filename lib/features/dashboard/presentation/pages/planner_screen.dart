@@ -341,7 +341,6 @@ class _PlannerTaskData {
   final String desc;
   final IconData icon;
   final Color color;
-  final bool isDone;
   final bool isUnscheduled;
   final AdCampaign? campaign;
 
@@ -351,7 +350,6 @@ class _PlannerTaskData {
     required this.desc,
     required this.icon,
     required this.color,
-    this.isDone = false,
     this.isUnscheduled = false,
     this.campaign,
   });
