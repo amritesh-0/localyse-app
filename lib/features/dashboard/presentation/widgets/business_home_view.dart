@@ -6,6 +6,7 @@ import '../pages/business_profile_screen.dart';
 import '../pages/influencer_detail_screen.dart';
 import '../pages/post_ad_screen.dart';
 import '../pages/post_opening_screen.dart';
+import '../../data/services/business_dashboard_service.dart';
 
 class BusinessHomeView extends StatefulWidget {
   const BusinessHomeView({super.key});
@@ -15,6 +16,8 @@ class BusinessHomeView extends StatefulWidget {
 }
 
 class _BusinessHomeViewState extends State<BusinessHomeView> {
+  final BusinessDashboardService _businessDashboardService =
+      BusinessDashboardService();
   String selectedLocation = 'Mumbai, India';
   String selectedCategory = 'All';
   final List<String> locations = ['Mumbai, India', 'Delhi, India', 'Bangalore, India', 'All India'];
@@ -27,6 +30,7 @@ class _BusinessHomeViewState extends State<BusinessHomeView> {
   @override
   void initState() {
     super.initState();
+    _businessDashboardService.addListener(_handleDashboardUpdate);
     _startBannerTimer();
   }
 
@@ -47,12 +51,21 @@ class _BusinessHomeViewState extends State<BusinessHomeView> {
   void dispose() {
     _bannerTimer?.cancel();
     _bannerController.dispose();
+    _businessDashboardService.removeListener(_handleDashboardUpdate);
     super.dispose();
+  }
+
+  void _handleDashboardUpdate() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final filteredInfluencers = _getFilteredInfluencers();
+    final bool isLoading =
+        _businessDashboardService.isLoading && filteredInfluencers.isEmpty;
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -80,7 +93,11 @@ class _BusinessHomeViewState extends State<BusinessHomeView> {
                 child: _buildSectionHeader('Top Influencers'),
               ),
             ),
-            if (filteredInfluencers.isEmpty)
+            if (isLoading)
+              const SliverFillRemaining(
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (filteredInfluencers.isEmpty)
               SliverToBoxAdapter(
                 child: Center(
                   child: Padding(
@@ -106,19 +123,19 @@ class _BusinessHomeViewState extends State<BusinessHomeView> {
   }
 
   List<Map<String, String>> _getFilteredInfluencers() {
-    final all = [
-      {'name': 'Rohan Sharma', 'niche': 'Tech & Lifestyle', 'followers': '120K', 'eng': '4.2%', 'loc': 'Mumbai, India'},
-      {'name': 'Ananya Iyer', 'niche': 'Fashion & Beauty', 'followers': '85K', 'eng': '5.1%', 'loc': 'Delhi, India'},
-      {'name': 'Vikram Singh', 'niche': 'Fitness & Health', 'followers': '210K', 'eng': '3.8%', 'loc': 'Bangalore, India'},
-      {'name': 'Sanya Malhotra', 'niche': 'Travel & Food', 'followers': '150K', 'eng': '4.5%', 'loc': 'Mumbai, India'},
-      {'name': 'Kabir Das', 'niche': 'Education', 'followers': '65K', 'eng': '6.2%', 'loc': 'Delhi, India'},
-    ];
-
-    return all.where((inf) {
-      final locMatch = selectedLocation == 'All India' || inf['loc'] == selectedLocation;
-      final catMatch = selectedCategory == 'All' || inf['niche']!.contains(selectedCategory);
-      return locMatch && catMatch;
-    }).toList();
+    return _businessDashboardService
+        .getInfluencers(
+          selectedLocation: selectedLocation,
+          selectedCategory: selectedCategory,
+        )
+        .map((profile) => <String, String>{
+              'name': profile.displayName,
+              'niche': profile.niche,
+              'followers': profile.followersLabel,
+              'eng': profile.engagementLabel,
+              'loc': profile.city,
+            })
+        .toList();
   }
 
   Widget _buildSeamlessHeader() {
