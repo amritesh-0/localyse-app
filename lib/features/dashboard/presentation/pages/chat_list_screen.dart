@@ -1,13 +1,37 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/theme/app_theme.dart';
 import '../../data/models/influencer_models.dart';
 import '../../data/services/campaign_service.dart';
 import 'chat_screen.dart';
 
-class ChatListScreen extends StatelessWidget {
-  ChatListScreen({super.key});
+class ChatListScreen extends StatefulWidget {
+  const ChatListScreen({super.key});
 
-  final _campaignService = CampaignService();
+  @override
+  State<ChatListScreen> createState() => _ChatListScreenState();
+}
+
+class _ChatListScreenState extends State<ChatListScreen> {
+  final CampaignService _campaignService = CampaignService();
+
+  @override
+  void initState() {
+    super.initState();
+    _campaignService.addListener(_handleUpdate);
+  }
+
+  @override
+  void dispose() {
+    _campaignService.removeListener(_handleUpdate);
+    super.dispose();
+  }
+
+  void _handleUpdate() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,14 +56,18 @@ class ChatListScreen extends StatelessWidget {
           ),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            sliver: activeCampaigns.isEmpty
-                ? SliverFillRemaining(child: _buildEmptyState())
-                : SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) => _buildChatTile(context, activeCampaigns[index]),
-                      childCount: activeCampaigns.length,
-                    ),
-                  ),
+            sliver: _campaignService.isLoading && activeCampaigns.isEmpty
+                ? const SliverFillRemaining(
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                : activeCampaigns.isEmpty
+                    ? SliverFillRemaining(child: _buildEmptyState())
+                    : SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) => _buildChatTile(context, activeCampaigns[index]),
+                          childCount: activeCampaigns.length,
+                        ),
+                      ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 120)),
         ],
@@ -75,20 +103,6 @@ class ChatListScreen extends StatelessWidget {
           letterSpacing: -0.5,
         ),
       ),
-      actions: [
-        Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.grey[50],
-            shape: BoxShape.circle,
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.more_horiz_rounded, color: Colors.black),
-            onPressed: () {},
-          ),
-        ),
-        const SizedBox(width: 8),
-      ],
     );
   }
 
@@ -135,7 +149,7 @@ class ChatListScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Active campaigns show up here.',
+            'Approved and active campaigns show up here.',
             style: TextStyle(fontSize: 14, color: Colors.grey[400], fontWeight: FontWeight.w600),
           ),
         ],
@@ -144,6 +158,11 @@ class ChatListScreen extends StatelessWidget {
   }
 
   Widget _buildChatTile(BuildContext context, AdCampaign ad) {
+    final String preview = ad.status == AdStatus.pendingPayment
+        ? 'We are reviewing your proof submission.'
+        : ad.status == AdStatus.paid
+            ? 'Payment has been settled for this campaign.'
+            : 'Campaign coordination and brief updates appear here.';
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -163,37 +182,23 @@ class ChatListScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Stack(
-                  alignment: Alignment.bottomRight,
-                  children: [
-                    Container(
-                      height: 60,
-                      width: 60,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.05),
-                        borderRadius: BorderRadius.circular(22),
-                      ),
-                      child: Center(
-                        child: Text(
-                          ad.brandLogo,
-                          style: const TextStyle(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 22,
-                          ),
-                        ),
+                Container(
+                  height: 60,
+                  width: 60,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: Center(
+                    child: Text(
+                      ad.brandLogo,
+                      style: const TextStyle(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 22,
                       ),
                     ),
-                    Container(
-                      height: 16,
-                      width: 16,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF10B981),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 3),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -206,58 +211,32 @@ class ChatListScreen extends StatelessWidget {
                           Text(
                             ad.brandName,
                             style: const TextStyle(
-                              fontWeight: FontWeight.w900, 
-                              fontSize: 16, 
+                              fontWeight: FontWeight.w900,
+                              fontSize: 16,
                               color: Colors.black,
                               letterSpacing: -0.3,
                             ),
                           ),
                           Text(
-                            'Just now',
+                            _statusLabel(ad.status),
                             style: TextStyle(
-                              color: Colors.grey[300], 
-                              fontSize: 11, 
+                              color: Colors.grey[300],
+                              fontSize: 11,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'Please share your metrics for the last campaign we ran...',
-                              style: TextStyle(
-                                color: Colors.grey[500],
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              maxLines: 1,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Container(
-                            height: 20,
-                            constraints: const BoxConstraints(minWidth: 20),
-                            padding: const EdgeInsets.symmetric(horizontal: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.black,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                '2',
-                                style: TextStyle(
-                                  color: Colors.white, 
-                                  fontSize: 10, 
-                                  fontWeight: FontWeight.w900,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                      Text(
+                        preview,
+                        style: TextStyle(
+                          color: Colors.grey[500],
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -268,5 +247,20 @@ class ChatListScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _statusLabel(AdStatus status) {
+    switch (status) {
+      case AdStatus.approved:
+        return 'Approved';
+      case AdStatus.ongoing:
+        return 'Active';
+      case AdStatus.pendingPayment:
+        return 'Reviewing';
+      case AdStatus.paid:
+        return 'Paid';
+      default:
+        return 'Open';
+    }
   }
 }

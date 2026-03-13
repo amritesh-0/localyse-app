@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/theme/app_theme.dart';
+import '../../data/services/notification_service.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final NotificationService service = NotificationService.instance;
+
     return Scaffold(
-      backgroundColor: Colors.grey[50], // Seamless background
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -33,7 +37,7 @@ class NotificationsScreen extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () {},
+            onPressed: () => service.markAllRead(),
             child: const Text(
               'Mark all read',
               style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w800, fontSize: 12),
@@ -43,74 +47,43 @@ class NotificationsScreen extends StatelessWidget {
         ],
         centerTitle: true,
       ),
-      body: ListView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(24),
-        children: [
-          _buildSectionHeader('TODAY'),
-          const SizedBox(height: 16),
-          _buildNotificationTile(
-            title: 'New Campaign Match!',
-            subtitle: 'Nike is looking for lifestyle creators in New York.',
-            time: '2h ago',
-            icon: Icons.auto_awesome_rounded,
-            color: const Color(0xFF7C3AED),
-            isUnread: true,
-          ),
-          const SizedBox(height: 12),
-          _buildNotificationTile(
-            title: 'Message from Adidas',
-            subtitle: '"We loved your latest reel! Let\'s discuss..."',
-            time: '5h ago',
-            icon: Icons.chat_bubble_rounded,
-            color: const Color(0xFF10B981),
-            isUnread: true,
-          ),
-          const SizedBox(height: 32),
-          _buildSectionHeader('YESTERDAY'),
-          const SizedBox(height: 16),
-          _buildNotificationTile(
-            title: 'Payment Received',
-            subtitle: 'Your payment for "Starbucks Summer" has been processed.',
-            time: '1d ago',
-            icon: Icons.payments_rounded,
-            color: const Color(0xFFF97316),
-            isUnread: false,
-          ),
-          const SizedBox(height: 12),
-          _buildNotificationTile(
-            title: 'Campaign Approved',
-            subtitle: 'Your proof for "Tech Expo" was verified by the brand.',
-            time: '1d ago',
-            icon: Icons.check_circle_rounded,
-            color: const Color(0xFF2563EB),
-            isUnread: false,
-          ),
-        ],
+      body: StreamBuilder<List<AppNotification>>(
+        stream: service.notificationsStream(),
+        builder: (context, snapshot) {
+          final List<AppNotification> notifications = snapshot.data ?? const <AppNotification>[];
+          if (snapshot.connectionState == ConnectionState.waiting && notifications.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (notifications.isEmpty) {
+            return Center(
+              child: Text(
+                'No notifications yet.',
+                style: TextStyle(color: Colors.grey[500], fontWeight: FontWeight.w600),
+              ),
+            );
+          }
+
+          return ListView.separated(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.all(24),
+            itemBuilder: (context, index) {
+              final AppNotification notification = notifications[index];
+              return InkWell(
+                onTap: () => service.markRead(notification.id),
+                borderRadius: BorderRadius.circular(24),
+                child: _buildNotificationTile(notification),
+              );
+            },
+            separatorBuilder: (context, index) => const SizedBox(height: 12),
+            itemCount: notifications.length,
+          );
+        },
       ),
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontSize: 10,
-        fontWeight: FontWeight.w900,
-        color: Colors.grey[400],
-        letterSpacing: 1.5,
-      ),
-    );
-  }
-
-  Widget _buildNotificationTile({
-    required String title,
-    required String subtitle,
-    required String time,
-    required IconData icon,
-    required Color color,
-    required bool isUnread,
-  }) {
+  Widget _buildNotificationTile(AppNotification notification) {
+    final _NotificationStyle style = _styleForType(notification.type);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -130,10 +103,10 @@ class NotificationsScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: style.color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(icon, color: color, size: 20),
+            child: Icon(style.icon, color: style.color, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -143,15 +116,17 @@ class NotificationsScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15,
-                        color: Colors.black,
+                    Expanded(
+                      child: Text(
+                        notification.title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 15,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
-                    if (isUnread)
+                    if (!notification.isRead)
                       Container(
                         height: 8,
                         width: 8,
@@ -164,7 +139,7 @@ class NotificationsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  subtitle,
+                  notification.body,
                   style: TextStyle(
                     color: Colors.grey[500],
                     fontSize: 13,
@@ -174,7 +149,7 @@ class NotificationsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  time,
+                  _formatRelative(notification.createdAt),
                   style: TextStyle(
                     color: Colors.grey[400],
                     fontSize: 10,
@@ -188,4 +163,43 @@ class NotificationsScreen extends StatelessWidget {
       ),
     );
   }
+
+  _NotificationStyle _styleForType(String type) {
+    switch (type) {
+      case 'campaign_approved':
+        return const _NotificationStyle(Icons.check_circle_rounded, Color(0xFF2563EB));
+      case 'payment':
+        return const _NotificationStyle(Icons.payments_rounded, Color(0xFFF97316));
+      case 'proof_submission':
+        return const _NotificationStyle(Icons.upload_file_rounded, Color(0xFF7C3AED));
+      case 'campaign_rejected':
+        return const _NotificationStyle(Icons.cancel_rounded, Color(0xFFEF4444));
+      default:
+        return const _NotificationStyle(Icons.notifications_active_rounded, Color(0xFF10B981));
+    }
+  }
+
+  String _formatRelative(DateTime? createdAt) {
+    if (createdAt == null) {
+      return 'Just now';
+    }
+    final Duration diff = DateTime.now().difference(createdAt);
+    if (diff.inMinutes < 1) {
+      return 'Just now';
+    }
+    if (diff.inHours < 1) {
+      return '${diff.inMinutes}m ago';
+    }
+    if (diff.inDays < 1) {
+      return '${diff.inHours}h ago';
+    }
+    return '${diff.inDays}d ago';
+  }
+}
+
+class _NotificationStyle {
+  const _NotificationStyle(this.icon, this.color);
+
+  final IconData icon;
+  final Color color;
 }

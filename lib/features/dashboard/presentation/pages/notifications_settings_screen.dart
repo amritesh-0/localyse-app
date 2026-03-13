@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/utils/feedback_utils.dart';
+import '../../data/services/notification_service.dart';
+
 class NotificationsSettingsScreen extends StatefulWidget {
   const NotificationsSettingsScreen({super.key});
 
@@ -8,10 +11,8 @@ class NotificationsSettingsScreen extends StatefulWidget {
 }
 
 class _NotificationsSettingsScreenState extends State<NotificationsSettingsScreen> {
-  bool _newCampaigns = true;
-  bool _directMessages = true;
-  bool _paymentAlerts = true;
-  bool _marketing = false;
+  final NotificationService _notificationService = NotificationService.instance;
+  bool _isSaving = false;
 
   @override
   Widget build(BuildContext context) {
@@ -42,18 +43,28 @@ class _NotificationsSettingsScreenState extends State<NotificationsSettingsScree
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            _buildNotificationCard(),
-          ],
-        ),
+      body: StreamBuilder<NotificationPreferences>(
+        stream: _notificationService.preferencesStream(),
+        builder: (context, snapshot) {
+          final NotificationPreferences preferences =
+              snapshot.data ?? const NotificationPreferences.defaults();
+          if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                _buildNotificationCard(preferences),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildNotificationCard() {
+  Widget _buildNotificationCard(NotificationPreferences preferences) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -65,16 +76,29 @@ class _NotificationsSettingsScreenState extends State<NotificationsSettingsScree
       ),
       child: Column(
         children: [
-          _buildToggleTile('New Campaigns', 'Get notified about new opportunities', _newCampaigns, (v) => setState(() => _newCampaigns = v)),
-          _buildToggleTile('Direct Messages', 'When a brand sends you a message', _directMessages, (v) => setState(() => _directMessages = v)),
-          _buildToggleTile('Payment Alerts', 'When funds hit your account', _paymentAlerts, (v) => setState(() => _paymentAlerts = v)),
-          _buildToggleTile('Marketing', 'Stay updated with our latest news', _marketing, (v) => setState(() => _marketing = v)),
+          _buildToggleTile('New Campaigns', 'Get notified about new opportunities', preferences.newCampaigns, (value) {
+            _save(preferences.copyWith(newCampaigns: value));
+          }),
+          _buildToggleTile('Direct Messages', 'When a brand sends you a message', preferences.directMessages, (value) {
+            _save(preferences.copyWith(directMessages: value));
+          }),
+          _buildToggleTile('Payment Alerts', 'When funds hit your account', preferences.paymentAlerts, (value) {
+            _save(preferences.copyWith(paymentAlerts: value));
+          }),
+          _buildToggleTile('Marketing', 'Stay updated with our latest news', preferences.marketing, (value) {
+            _save(preferences.copyWith(marketing: value));
+          }),
+          if (_isSaving)
+            const Padding(
+              padding: EdgeInsets.only(top: 12),
+              child: LinearProgressIndicator(),
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildToggleTile(String title, String sub, bool value, Function(bool) onChanged) {
+  Widget _buildToggleTile(String title, String sub, bool value, ValueChanged<bool> onChanged) {
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Row(
@@ -90,11 +114,42 @@ class _NotificationsSettingsScreenState extends State<NotificationsSettingsScree
           ),
           Switch.adaptive(
             value: value,
-            activeColor: Colors.black,
+            activeThumbColor: Colors.black,
             onChanged: onChanged,
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _save(NotificationPreferences preferences) async {
+    setState(() => _isSaving = true);
+    try {
+      await _notificationService.updatePreferences(preferences);
+    } catch (error) {
+      if (mounted) {
+        AppFeedback.error(context, 'Unable to save notification settings: $error');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+}
+
+extension on NotificationPreferences {
+  NotificationPreferences copyWith({
+    bool? newCampaigns,
+    bool? directMessages,
+    bool? paymentAlerts,
+    bool? marketing,
+  }) {
+    return NotificationPreferences(
+      newCampaigns: newCampaigns ?? this.newCampaigns,
+      directMessages: directMessages ?? this.directMessages,
+      paymentAlerts: paymentAlerts ?? this.paymentAlerts,
+      marketing: marketing ?? this.marketing,
     );
   }
 }
