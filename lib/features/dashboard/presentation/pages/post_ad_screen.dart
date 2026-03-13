@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/feedback_utils.dart';
 
 class PostAdScreen extends StatefulWidget {

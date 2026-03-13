@@ -19,7 +19,7 @@ class BusinessProfileScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildPremiumHero(),
+              _buildPremiumHero(context),
               const SizedBox(height: 40),
               _buildSectionHeader('Account Settings'),
               const SizedBox(height: 16),
@@ -33,7 +33,7 @@ class BusinessProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPremiumHero() {
+  Widget _buildPremiumHero(BuildContext context) {
     return Column(
       children: [
         Row(

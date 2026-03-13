@@ -293,7 +293,7 @@ class _BusinessHomeViewState extends State<BusinessHomeView> {
                 setState(() => selectedLocation = loc);
                 Navigator.pop(context);
               },
-            )).toList(),
+            )),
           ],
         ),
       ),
