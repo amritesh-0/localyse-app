@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_theme.dart';
 import '../pages/notifications_screen.dart';
 import '../pages/chat_list_screen.dart';
 import '../pages/business_profile_screen.dart';
 import '../pages/influencer_detail_screen.dart';
+import '../pages/post_ad_screen.dart';
+import '../pages/post_opening_screen.dart';
 
 class BusinessHomeView extends StatefulWidget {
   const BusinessHomeView({super.key});
@@ -32,7 +33,7 @@ class _BusinessHomeViewState extends State<BusinessHomeView> {
   void _startBannerTimer() {
     _bannerTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
       if (_bannerController.hasClients) {
-        _currentBannerIndex = (_currentBannerIndex + 1) % 3;
+        _currentBannerIndex = (_currentBannerIndex + 1) % 5; // Updated to 5 banners
         _bannerController.animateToPage(
           _currentBannerIndex,
           duration: const Duration(milliseconds: 1000),
@@ -312,6 +313,28 @@ class _BusinessHomeViewState extends State<BusinessHomeView> {
         },
         children: [
           _buildPremiumBanner(
+            title: 'Launch your\nNext Campaign',
+            subtitle: 'Reach 1M+ local creators instantly. Set your budget and goals.',
+            icon: Icons.rocket_launch_rounded,
+            colors: [const Color(0xFF1E1B4B), const Color(0xFF312E81)], // Deep Indigo
+            textColor: Colors.white,
+            iconColor: Colors.white.withOpacity(0.05),
+            tag: 'QUICK START',
+            tagColor: Colors.white,
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PostAdScreen())),
+          ),
+          _buildPremiumBanner(
+            title: 'Host an\nOpening Ceremony',
+            subtitle: 'Invite local influencers to promote your grand opening or seminar.',
+            icon: Icons.event_available_rounded,
+            colors: [const Color(0xFFFDF2F8), const Color(0xFFFCE7F3)], // Pastel Pink
+            textColor: Colors.black87,
+            iconColor: const Color(0xFFDB2777).withOpacity(0.05),
+            tag: 'NEW FEATURE',
+            tagColor: const Color(0xFFDB2777),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PostOpeningScreen())),
+          ),
+          _buildPremiumBanner(
             title: 'Verified\nBrand Badge',
             subtitle: 'Upload your business documents to get the "Verified" badge and 2x applicants.',
             icon: Icons.verified_rounded,
@@ -355,78 +378,82 @@ class _BusinessHomeViewState extends State<BusinessHomeView> {
     Color textColor = Colors.white,
     Color? iconColor,
     Color? tagColor,
+    VoidCallback? onTap,
   }) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 24),
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: colors,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: [
-          BoxShadow(
-            color: colors[0].withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 24),
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: colors,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            right: -20,
-            bottom: -20,
-            child: Icon(
-              icon,
-              size: 140,
-              color: iconColor ?? Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(32),
+          boxShadow: [
+            BoxShadow(
+              color: colors[0].withOpacity(0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: tagColor?.withOpacity(0.2) ?? Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  tag,
-                  style: TextStyle(
-                    color: tagColor ?? textColor,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.0,
+          ],
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              right: -20,
+              bottom: -20,
+              child: Icon(
+                icon,
+                size: 140,
+                color: iconColor ?? Colors.white.withOpacity(0.1),
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: tagColor?.withOpacity(0.2) ?? Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    tag,
+                    style: TextStyle(
+                      color: tagColor ?? textColor,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.0,
+                    ),
                   ),
                 ),
-              ),
-              const Spacer(),
-              Text(
-                title,
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                  height: 1.1,
-                  letterSpacing: -0.5,
+                const Spacer(),
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    height: 1.1,
+                    letterSpacing: -0.5,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  color: textColor.withOpacity(0.8),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
+                const SizedBox(height: 8),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    color: textColor.withOpacity(0.8),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -7,6 +7,7 @@ import '../pages/notifications_screen.dart';
 import '../pages/chat_list_screen.dart';
 import 'influencer_profile_view.dart';
 import '../../data/services/campaign_service.dart';
+import '../../../../core/utils/feedback_utils.dart';
 
 class InfluencerHomeView extends StatefulWidget {
   const InfluencerHomeView({super.key});
@@ -20,6 +21,25 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
   String selectedCategory = 'All';
   final List<String> locations = ['New York, NY', 'Los Angeles, CA', 'Chicago, IL', 'Austin, TX', 'Miami, FL'];
   final List<String> categories = ['All', 'Lifestyle', 'Tech', 'Food', 'Fashion', 'Fitness'];
+  
+  final List<Map<String, dynamic>> _liveOpenings = [
+    {
+      'title': 'Grand Opening: Bandra Flagship',
+      'category': 'Ceremony',
+      'city': 'Mumbai',
+      'reward': '₹2,500',
+      'icon': Icons.storefront_rounded,
+      'color': const Color(0xFF7C3AED),
+    },
+    {
+      'title': 'Sustainable Beauty Seminar',
+      'category': 'Seminar',
+      'city': 'Mumbai',
+      'reward': 'Hamper + ₹1,500',
+      'icon': Icons.school_rounded,
+      'color': const Color(0xFFF59E0B),
+    },
+  ];
   
   final _campaignService = CampaignService();
   
@@ -37,7 +57,7 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
   void _startBannerTimer() {
     _bannerTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
       if (_bannerController.hasClients) {
-        _currentBannerIndex = (_currentBannerIndex + 1) % 3; // Assuming 3 banners
+        _currentBannerIndex = (_currentBannerIndex + 1) % 4; // Updated to 4 banners
         _bannerController.animateToPage(
           _currentBannerIndex,
           duration: const Duration(milliseconds: 1000),
@@ -81,6 +101,9 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
             ),
             SliverToBoxAdapter(
               child: _buildCategoryChips(),
+            ),
+            SliverToBoxAdapter(
+              child: _buildLiveOpeningsSection(),
             ),
             SliverToBoxAdapter(
               child: Padding(
@@ -333,6 +356,16 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
             iconColor: const Color(0xFF10B981).withOpacity(0.05),
             tag: 'DISCOVERY',
             tagColor: const Color(0xFF059669),
+          ),
+          _buildPremiumBanner(
+            title: 'Live Opening\nCeremonies',
+            subtitle: 'Earn perks and networking opportunities at nearby store launches!',
+            icon: Icons.celebration_rounded,
+            colors: [const Color(0xFFFDF2F8), const Color(0xFFF3E8FF)],
+            textColor: Colors.black87,
+            iconColor: const Color(0xFFE1306C).withOpacity(0.05),
+            tag: 'NEW OPPORTUNITY',
+            tagColor: const Color(0xFFE1306C),
           ),
         ],
       ),
@@ -710,6 +743,110 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
               elevation: 0,
             ),
             child: const Text('Change Location', style: TextStyle(fontWeight: FontWeight.w800)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLiveOpeningsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Live Openings Near You',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.black, letterSpacing: -0.5),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(color: const Color(0xFF16A34A).withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                child: const Text('LIVE', style: TextStyle(color: Color(0xFF16A34A), fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 160,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            itemCount: _liveOpenings.length,
+            itemBuilder: (context, index) {
+              final opening = _liveOpenings[index];
+              return _buildOpeningDiscoveryCard(opening);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOpeningDiscoveryCard(Map<String, dynamic> opening) {
+    return Container(
+      width: 280,
+      margin: const EdgeInsets.only(right: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(32),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 15, offset: const Offset(0, 8)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(color: opening['color'].withOpacity(0.1), shape: BoxShape.circle),
+                child: Icon(opening['icon'], color: opening['color'], size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(opening['category'].toUpperCase(), style: TextStyle(color: opening['color'], fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+                    Text(opening['title'], maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const Spacer(),
+          const Divider(height: 1),
+          const Spacer(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('REWARD', style: TextStyle(color: Colors.grey[400], fontSize: 8, fontWeight: FontWeight.w900)),
+                  Text(opening['reward'], style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF16A34A))),
+                ],
+              ),
+              OutlinedButton(
+                onPressed: () {
+                  AppFeedback.success(context, 'Application Sent! We\'ll notify you soon.');
+                },
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.black, width: 1.5),
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('Join', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12)),
+              ),
+            ],
           ),
         ],
       ),

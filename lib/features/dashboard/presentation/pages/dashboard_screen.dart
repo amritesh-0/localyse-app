@@ -59,7 +59,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     const BusinessHomeView(),
                     const BusinessCampaignsView(),
                     const BusinessStatsView(),
-                    const BusinessShortlistView(),
+                    const BusinessShortlistView(), // Renamed internally to OpeningsView
                   ],
             ),
           ),
@@ -86,7 +86,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           _buildNavItem(0, Icons.groups_rounded, 'Discover'),
           _buildNavItem(1, Icons.campaign_rounded, 'My Ads'),
           _buildNavItem(2, Icons.analytics_rounded, 'Stats'),
-          _buildNavItem(3, Icons.bookmark_rounded, 'Shortlist'),
+          _buildNavItem(3, Icons.event_available_rounded, 'Openings'),
         ];
 
     return Container(

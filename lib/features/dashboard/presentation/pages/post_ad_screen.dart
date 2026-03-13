@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/feedback_utils.dart';
 
 class PostAdScreen extends StatefulWidget {
   const PostAdScreen({super.key});
@@ -38,9 +39,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
             child: TextButton(
               onPressed: () {
                 // Mock success and go back
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Campaign Posted Successfully!')),
-                );
+                AppFeedback.success(context, 'Campaign Posted Successfully!');
                 Navigator.pop(context);
               },
               style: TextButton.styleFrom(
