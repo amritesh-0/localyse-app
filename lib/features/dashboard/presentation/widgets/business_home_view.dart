@@ -316,11 +316,11 @@ class _BusinessHomeViewState extends State<BusinessHomeView> {
             title: 'Launch your\nNext Campaign',
             subtitle: 'Reach 1M+ local creators instantly. Set your budget and goals.',
             icon: Icons.rocket_launch_rounded,
-            colors: [const Color(0xFF1E1B4B), const Color(0xFF312E81)], // Deep Indigo
-            textColor: Colors.white,
-            iconColor: Colors.white.withOpacity(0.05),
+            colors: [const Color(0xFFEEF2FF), const Color(0xFFE0E7FF)], // Lighter Indigo
+            textColor: Colors.black87,
+            iconColor: const Color(0xFF6366F1).withOpacity(0.05),
             tag: 'QUICK START',
-            tagColor: Colors.white,
+            tagColor: const Color(0xFF4F46E5),
             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PostAdScreen())),
           ),
           _buildPremiumBanner(

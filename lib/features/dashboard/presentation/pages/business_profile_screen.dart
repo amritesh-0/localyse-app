@@ -235,13 +235,17 @@ class BusinessProfileScreen extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: () async {
-            // Re-using the same pattern as influencer profile
+            final AuthRepository authRepository = AuthRepositoryImpl();
             try {
-              // Implementation would typically involve AuthRepository
-              // Navigator.pushAndRemoveUntil(...) to RoleSelectionScreen
-              AppFeedback.info(context, 'Logging out...');
-              Navigator.of(context).popUntil((route) => route.isFirst);
+              await authRepository.signOut();
+              if (!context.mounted) return;
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const RoleSelectionScreen()),
+                (route) => false,
+              );
             } catch (_) {
+              if (!context.mounted) return;
               AppFeedback.error(context, 'Unable to log out. Please try again.');
             }
           },
