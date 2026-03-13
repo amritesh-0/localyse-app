@@ -80,7 +80,7 @@ class EarningHistoryScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '+\$450.00',
+                '+₹450.00',
                 style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Color(0xFF10B981)),
               ),
               Text(

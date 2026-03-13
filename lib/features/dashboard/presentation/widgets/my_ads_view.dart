@@ -300,7 +300,7 @@ class _MyAdsViewState extends State<MyAdsView> {
                                 ),
                               ),
                               Text(
-                                '\$${ad.payout.toStringAsFixed(0)}',
+                                '₹${ad.payout.toStringAsFixed(0)}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w900,
                                   fontSize: 18,

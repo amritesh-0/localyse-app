@@ -76,7 +76,7 @@ class PayoutMethodsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           const Text(
-            '\$2,450.00',
+            '₹2,450.00',
             style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w900, letterSpacing: -1.0),
           ),
           const SizedBox(height: 24),

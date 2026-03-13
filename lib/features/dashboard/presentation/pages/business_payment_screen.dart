@@ -59,9 +59,9 @@ class BusinessPaymentScreen extends StatelessWidget {
           Text(amount, style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: Colors.black)),
           const SizedBox(height: 16),
           _buildDetailRow('Campaign Fee', amount),
-          _buildDetailRow('Service Fee (5%)', '\$${(double.parse(amount.replaceAll('\$', '').replaceAll(',', '')) * 0.05).toStringAsFixed(2)}'),
+          _buildDetailRow('Service Fee (5%)', '₹${(double.parse(amount.replaceAll('₹', '').replaceAll(',', '')) * 0.05).toStringAsFixed(2)}'),
           const Divider(height: 32),
-          _buildDetailRow('Total Payable', '\$${(double.parse(amount.replaceAll('\$', '').replaceAll(',', '')) * 1.05).toStringAsFixed(2)}', isBold: true),
+          _buildDetailRow('Total Payable', '₹${(double.parse(amount.replaceAll('₹', '').replaceAll(',', '')) * 1.05).toStringAsFixed(2)}', isBold: true),
         ],
       ),
     );

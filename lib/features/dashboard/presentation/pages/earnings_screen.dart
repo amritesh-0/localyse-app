@@ -97,7 +97,7 @@ class EarningsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               const Text(
-                '\$12,450.00',
+                '₹12,450.00',
                 style: TextStyle(
                   fontSize: 48,
                   fontWeight: FontWeight.w900,
@@ -139,7 +139,7 @@ class EarningsScreen extends StatelessWidget {
         Expanded(
           child: _buildSummaryCard(
             label: 'Mar Revenue',
-            amount: '\$2,840',
+            amount: '₹2,840',
             trend: '+12.4%',
             icon: Icons.auto_graph_rounded,
             color: const Color(0xFF6366F1),
@@ -149,7 +149,7 @@ class EarningsScreen extends StatelessWidget {
         Expanded(
           child: _buildSummaryCard(
             label: 'Locked',
-            amount: '\$850',
+            amount: '₹850',
             trend: 'Pending',
             icon: Icons.lock_clock_rounded,
             color: const Color(0xFFF59E0B),
@@ -231,10 +231,10 @@ class EarningsScreen extends StatelessWidget {
   Widget _buildTransactionList() {
     return Column(
       children: [
-        _buildTransactionTile('Nike Basketball', 'Mar 10, 2026', '+\$800.00', true, 'NB'),
-        _buildTransactionTile('Adidas Originals', 'Mar 08, 2026', '+\$1,200.00', true, 'AO'),
-        _buildTransactionTile('Express Payout', 'Mar 05, 2026', '-\$500.00', false, 'WT'),
-        _buildTransactionTile('Starbucks Winter', 'Mar 02, 2026', '+\$450.00', true, 'SB'),
+        _buildTransactionTile('Nike Basketball', 'Mar 10, 2026', '+₹800.00', true, 'NB'),
+        _buildTransactionTile('Adidas Originals', 'Mar 08, 2026', '+₹1,200.00', true, 'AO'),
+        _buildTransactionTile('Express Payout', 'Mar 05, 2026', '-₹500.00', false, 'WT'),
+        _buildTransactionTile('Starbucks Winter', 'Mar 02, 2026', '+₹450.00', true, 'SB'),
       ],
     );
   }

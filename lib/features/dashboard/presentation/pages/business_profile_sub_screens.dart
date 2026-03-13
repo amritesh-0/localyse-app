@@ -117,7 +117,7 @@ class BillingInvoicesScreen extends StatelessWidget {
           const SizedBox(height: 32),
           const Text('Recent Invoices', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
           const SizedBox(height: 16),
-          ...List.generate(3, (i) => _buildInvoiceItem('INV-00${i+1}', '1${i+1} Mar 2026', '\$1,200.00')),
+          ...List.generate(3, (i) => _buildInvoiceItem('INV-00${i+1}', '1${i+1} Mar 2026', '₹1,200.00')),
         ],
       ),
     );
@@ -147,7 +147,7 @@ class BillingInvoicesScreen extends StatelessWidget {
         children: [
           const Text('Current Balance', style: TextStyle(color: Colors.white60, fontSize: 13, fontWeight: FontWeight.w500)),
           const SizedBox(height: 8),
-          const Text('\$4,520.00', style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900)),
+          const Text('₹4,520.00', style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900)),
           const SizedBox(height: 24),
           Row(
             children: [

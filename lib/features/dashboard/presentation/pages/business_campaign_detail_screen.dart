@@ -283,7 +283,7 @@ class BusinessCampaignDetailScreen extends StatelessWidget {
                     MaterialPageRoute(
                       builder: (_) => BusinessPaymentScreen(
                         campaignTitle: campaign['title'],
-                        amount: campaign['fee'] ?? '\$0',
+                        amount: campaign['fee'] ?? '₹0',
                       ),
                     ),
                   );

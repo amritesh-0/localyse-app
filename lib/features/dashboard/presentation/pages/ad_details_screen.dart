@@ -227,7 +227,7 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
         Expanded(
           child: _buildInfoCard(
             'PAYOUT',
-            '\$${widget.ad.payout.toStringAsFixed(0)}',
+            '₹${widget.ad.payout.toStringAsFixed(0)}',
             Icons.payments_rounded,
             AppColors.primary,
           ),
@@ -464,7 +464,7 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
   Widget _buildTransactionDetails() {
     return Column(
       children: [
-        _buildDetailRow('Amount', _currentStatus == AdStatus.paid ? '\$${widget.ad.payout.toStringAsFixed(2)}' : 'Processing...', _currentStatus == AdStatus.paid ? const Color(0xFF10B981) : Colors.black),
+        _buildDetailRow('Amount', _currentStatus == AdStatus.paid ? '₹${widget.ad.payout.toStringAsFixed(2)}' : 'Processing...', _currentStatus == AdStatus.paid ? const Color(0xFF10B981) : Colors.black),
         const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider(height: 1, color: Color(0xFFF5F5F5))),
         _buildDetailRow('Status', _currentStatus == AdStatus.paid ? 'Completed' : 'Verifying', _currentStatus == AdStatus.paid ? const Color(0xFF10B981) : const Color(0xFFF59E0B)),
         const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider(height: 1, color: Color(0xFFF5F5F5))),

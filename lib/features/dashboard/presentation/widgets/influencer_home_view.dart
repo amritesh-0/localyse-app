@@ -617,7 +617,7 @@ class _InfluencerHomeViewState extends State<InfluencerHomeView> {
                           const Icon(Icons.payments_rounded, size: 16, color: Colors.black),
                           const SizedBox(width: 8),
                           Text(
-                            '\$${ad.payout.toStringAsFixed(0)}',
+                            '₹${ad.payout.toStringAsFixed(0)}',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w900,
