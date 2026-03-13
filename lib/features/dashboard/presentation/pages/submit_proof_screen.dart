@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/feedback_utils.dart';
 import '../../data/models/influencer_models.dart';
 import '../../data/services/campaign_service.dart';
 
@@ -27,9 +28,7 @@ class _SubmitProofScreenState extends State<SubmitProofScreen> {
 
   Future<void> _handleSubmit() async {
     if (_linkController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please provide at least one campaign link')),
-      );
+      AppFeedback.error(context, 'Please provide at least one campaign link');
       return;
     }
 
@@ -42,12 +41,7 @@ class _SubmitProofScreenState extends State<SubmitProofScreen> {
     
     if (mounted) {
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Proof submitted successfully! We\'ll notify you once verified.'),
-          backgroundColor: Color(0xFF10B981),
-        ),
-      );
+      AppFeedback.success(context, 'Proof submitted successfully! We\'ll notify you soon.');
     }
   }
 

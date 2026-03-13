@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/feedback_utils.dart';
 
 class InfluencerDetailScreen extends StatelessWidget {
   final String name;
@@ -330,33 +331,6 @@ class InfluencerDetailScreen extends StatelessWidget {
   }
 
   void _showInvitationSentSuccess(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        content: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10))],
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.check_circle_rounded, color: Color(0xFF16A34A), size: 24),
-              const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('Invite Sent!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 15)),
-                  Text('Influence $name has been notified.', style: TextStyle(color: Colors.grey[400], fontSize: 12, fontWeight: FontWeight.w500)),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    AppFeedback.success(context, 'Invite Sent! Influence $name has been notified.');
   }
 }

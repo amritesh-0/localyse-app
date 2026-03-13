@@ -4,6 +4,7 @@ import '../../data/models/influencer_models.dart';
 import '../../data/services/campaign_service.dart';
 import 'submit_proof_screen.dart';
 import 'chat_screen.dart';
+import '../../../../core/utils/feedback_utils.dart';
 
 class AdDetailsScreen extends StatefulWidget {
   final AdCampaign ad;
@@ -403,7 +404,7 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
       case AdStatus.available:
         return _buildLargeButton('Apply Now', AppColors.primary, () {
           _campaignService.updateCampaignStatus(widget.ad.id, AdStatus.applied);
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Applied successfully!')));
+          AppFeedback.success(context, 'Applied successfully!');
         });
       case AdStatus.applied:
         return _buildLargeButton('Application Pending', Colors.grey[200]!, null, textColor: Colors.grey);

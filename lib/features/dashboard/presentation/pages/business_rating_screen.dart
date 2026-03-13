@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/feedback_utils.dart';
 
 class BusinessRatingScreen extends StatefulWidget {
   final String influencerName;
@@ -99,12 +100,7 @@ class _BusinessRatingScreenState extends State<BusinessRatingScreen> {
   }
 
   void _submitRating() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Thank you for your feedback!'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    AppFeedback.success(context, 'Thank you for your feedback!');
     Navigator.pop(context);
   }
 }

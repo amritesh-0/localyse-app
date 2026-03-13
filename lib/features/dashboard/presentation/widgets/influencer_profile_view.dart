@@ -9,6 +9,7 @@ import '../pages/earning_history_screen.dart';
 import '../pages/notifications_settings_screen.dart';
 import '../pages/help_center_screen.dart';
 import '../pages/terms_privacy_screen.dart';
+import '../../../../core/utils/feedback_utils.dart';
 
 class InfluencerProfileView extends StatelessWidget {
   const InfluencerProfileView({super.key});
@@ -358,9 +359,7 @@ class InfluencerProfileView extends StatelessWidget {
               );
             } catch (_) {
               if (!context.mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Unable to log out. Please try again.')),
-              );
+              AppFeedback.error(context, 'Unable to log out. Please try again.');
             }
           },
           borderRadius: BorderRadius.circular(24),
