@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../../auth/data/repositories/auth_repository_impl.dart';
+import '../../../auth/domain/repositories/auth_repository.dart';
+import '../../../onboarding/presentation/pages/role_selection_screen.dart';
+import '../../../../core/utils/feedback_utils.dart';
 import '../pages/business_profile_sub_screens.dart';
 
 class BusinessProfileScreen extends StatelessWidget {
@@ -15,10 +19,8 @@ class BusinessProfileScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(),
-              const SizedBox(height: 32),
-              _buildBrandInfo(),
-              const SizedBox(height: 48),
+              _buildPremiumHero(),
+              const SizedBox(height: 40),
               _buildSectionHeader('Account Settings'),
               const SizedBox(height: 16),
               _buildSettingsList(context),
@@ -31,84 +33,103 @@ class BusinessProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildPremiumHero() {
+    return Column(
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-              height: 64,
-              width: 64,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF0FDF4),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFF16A34A).withOpacity(0.1), width: 1),
+            IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 16),
+              style: IconButton.styleFrom(
+                backgroundColor: Colors.grey[50],
+                padding: const EdgeInsets.all(8),
               ),
-              child: const Center(
-                child: Text(
-                  'L', // Loco logo placeholder
-                  style: TextStyle(
-                    color: Color(0xFF16A34A),
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900,
+            ),
+            const SizedBox(width: 40), // Spacer to balance header
+          ],
+        ),
+        const SizedBox(height: 20),
+        Center(
+          child: Stack(
+            alignment: Alignment.bottomRight,
+            children: [
+              Container(
+                height: 100,
+                width: 100,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0FDF4),
+                  borderRadius: BorderRadius.circular(32),
+                  border: Border.all(color: const Color(0xFF16A34A).withOpacity(0.1), width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF16A34A).withOpacity(0.08),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: const Center(
+                  child: Text(
+                    'L',
+                    style: TextStyle(
+                      color: Color(0xFF16A34A),
+                      fontSize: 48,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 16),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Localize HQ',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.black),
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: const BoxDecoration(
+                  color: Colors.black,
+                  shape: BoxShape.circle,
                 ),
-                Text(
-                  'Premium Brand',
-                  style: TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-          ],
-        ),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.grey[50],
-            shape: BoxShape.circle,
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.edit_note_rounded, color: Colors.black),
-            onPressed: () {},
+                child: const Icon(Icons.verified_rounded, color: Colors.white, size: 16),
+              ),
+            ],
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildBrandInfo() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionHeader('About'),
-        const SizedBox(height: 12),
-        Text(
-          'Connecting premium brands with top-tier local influencers. We specialize in lifestyle and fashion campaigns across metropolitan India.',
+        const SizedBox(height: 20),
+        const Text(
+          'Localize HQ',
           style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: 15,
-            height: 1.6,
-            fontWeight: FontWeight.w500,
+            fontSize: 28,
+            fontWeight: FontWeight.w900,
+            color: Colors.black,
+            letterSpacing: -0.8,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 6),
         Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.language_rounded, size: 16, color: Colors.black54),
-            const SizedBox(width: 8),
+            const Icon(Icons.language_rounded, size: 12, color: Colors.blue),
+            const SizedBox(width: 6),
             Text(
               'www.localize.app',
-              style: TextStyle(color: Colors.blue[600], fontWeight: FontWeight.w700, fontSize: 13),
+              style: TextStyle(
+                color: Colors.blue[600],
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Container(
+              height: 3,
+              width: 3,
+              decoration: const BoxDecoration(color: Colors.grey, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'Premium Brand',
+              style: TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
             ),
           ],
         ),
@@ -203,20 +224,34 @@ class BusinessProfileScreen extends StatelessWidget {
   }
 
   Widget _buildLogoutButton(BuildContext context) {
-    return SizedBox(
+    return Container(
       width: double.infinity,
-      child: TextButton(
-        onPressed: () {},
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: Colors.red[50]!, width: 1),
+      height: 64,
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF1F1),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () async {
+            // Re-using the same pattern as influencer profile
+            try {
+              // Implementation would typically involve AuthRepository
+              // Navigator.pushAndRemoveUntil(...) to RoleSelectionScreen
+              AppFeedback.info(context, 'Logging out...');
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            } catch (_) {
+              AppFeedback.error(context, 'Unable to log out. Please try again.');
+            }
+          },
+          borderRadius: BorderRadius.circular(24),
+          child: const Center(
+            child: Text(
+              'Log Out',
+              style: TextStyle(color: Color(0xFFF43F5E), fontWeight: FontWeight.w900, fontSize: 16),
+            ),
           ),
-        ),
-        child: Text(
-          'Logout Account',
-          style: TextStyle(color: Colors.red[400], fontWeight: FontWeight.w800, fontSize: 14),
         ),
       ),
     );
