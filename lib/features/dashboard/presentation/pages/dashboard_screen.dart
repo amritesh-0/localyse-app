@@ -7,8 +7,15 @@ import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../onboarding/presentation/pages/role_selection_screen.dart';
 import '../pages/earnings_screen.dart';
 import '../pages/planner_screen.dart';
+import '../pages/chat_list_screen.dart';
 import '../widgets/influencer_home_view.dart';
 import '../widgets/my_ads_view.dart';
+import '../widgets/business_home_view.dart';
+import '../widgets/business_campaigns_view.dart';
+import '../widgets/business_stats_view.dart';
+import '../widgets/business_shortlist_view.dart';
+import '../pages/business_profile_screen.dart';
+import '../pages/business_campaign_detail_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({
@@ -27,7 +34,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.role != AppUserRole.influencer) {
+    // Both roles now use the modern dashboard with floating nav bar
+    if (widget.role == AppUserRole.user) {
       return _buildLegacyDashboard(context);
     }
 
@@ -40,12 +48,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
             bottom: false,
             child: IndexedStack(
               index: _currentIndex,
-              children: const [
-                InfluencerHomeView(),
-                MyAdsView(),
-                EarningsScreen(),
-                PlannerScreen(),
-              ],
+              children: widget.role == AppUserRole.influencer 
+                ? const [
+                    InfluencerHomeView(),
+                    MyAdsView(),
+                    EarningsScreen(),
+                    PlannerScreen(),
+                  ]
+                : [
+                    const BusinessHomeView(),
+                    const BusinessCampaignsView(),
+                    const BusinessStatsView(),
+                    const BusinessShortlistView(),
+                  ],
             ),
           ),
           Positioned(
@@ -60,6 +75,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildFloatingNavBar() {
+    final navItems = widget.role == AppUserRole.influencer
+      ? [
+          _buildNavItem(0, Icons.explore_rounded, 'Discover'),
+          _buildNavItem(1, Icons.campaign_rounded, 'My Ads'),
+          _buildNavItem(2, Icons.account_balance_wallet_rounded, 'Earnings'),
+          _buildNavItem(3, Icons.calendar_today_rounded, 'Planner'),
+        ]
+      : [
+          _buildNavItem(0, Icons.groups_rounded, 'Discover'),
+          _buildNavItem(1, Icons.campaign_rounded, 'My Ads'),
+          _buildNavItem(2, Icons.analytics_rounded, 'Stats'),
+          _buildNavItem(3, Icons.bookmark_rounded, 'Shortlist'),
+        ];
+
     return Container(
       height: 76,
       decoration: BoxDecoration(
@@ -81,12 +110,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(0, Icons.explore_rounded, 'Discover'),
-          _buildNavItem(1, Icons.campaign_rounded, 'My Ads'),
-          _buildNavItem(2, Icons.account_balance_wallet_rounded, 'Earnings'),
-          _buildNavItem(3, Icons.calendar_today_rounded, 'Planner'),
-        ],
+        children: navItems,
       ),
     );
   }
